@@ -35,11 +35,9 @@ jobs:
       - name: build
         run: |
           mkdir -p $GOCACHE
-          cd src
           go build -v
       - name: test
         run: |
           mkdir ${TEST_RESULTS}
           touch ${TEST_RESULTS}/unit-tests.xml
-          cd src
           gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p 6 -race -cover ./...
