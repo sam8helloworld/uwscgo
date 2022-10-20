@@ -22,8 +22,8 @@ const (
 	// IN   = "IN"
 	// NEXT = "NEXT"
 
-	// DIM    = "DIM"
-	// PUBLIC = "PUBLIC"
+	DIM    = "DIM"
+	PUBLIC = "PUBLIC"
 
 	ASSIGN            = "="
 	PLUS              = "+"
@@ -55,7 +55,8 @@ const (
 
 	// CALL = "CALL"
 
-	// IDENT             = "IDENT"
+	IDENT = "IDENT"
+	INT   = "INT"
 	// EXPANDABLE_STRING = "EXPANDABLE_STRING"
 	// STRING            = "STRING"
 )
