@@ -3,27 +3,16 @@ package lexer_test
 import (
 	"testing"
 
+	"github.com/sam8helloworld/uwscgo/lexer"
 	"github.com/sam8helloworld/uwscgo/token"
 )
 
 func TestNextToken(t *testing.T) {
-	input := `DIM val = "example_string"`
+	input := `=+(){},`
 
 	tests := []struct {
 		expected token.Token
 	}{
-		{
-			token.Token{
-				Type:    token.DIM,
-				Literal: "DIM",
-			},
-		},
-		{
-			token.Token{
-				Type:    token.IDENT,
-				Literal: "=",
-			},
-		},
 		{
 			token.Token{
 				Type:    token.ASSIGN,
@@ -32,13 +21,43 @@ func TestNextToken(t *testing.T) {
 		},
 		{
 			token.Token{
-				Type:    token.EXPANDABLE_STRING,
-				Literal: "example_string",
+				Type:    token.PLUS,
+				Literal: "+",
+			},
+		},
+		{
+			token.Token{
+				Type:    token.LEFT_PARENTHESIS,
+				Literal: "(",
+			},
+		},
+		{
+			token.Token{
+				Type:    token.RIGHT_PARENTHESIS,
+				Literal: ")",
+			},
+		},
+		{
+			token.Token{
+				Type:    token.LEFT_BRACKET,
+				Literal: "{",
+			},
+		},
+		{
+			token.Token{
+				Type:    token.RIGHT_BRACKET,
+				Literal: "}",
+			},
+		},
+		{
+			token.Token{
+				Type:    token.COMMA,
+				Literal: ",",
 			},
 		},
 	}
 
-	sut := NewLexer(input)
+	sut := lexer.NewLexer(input)
 	for i, tt := range tests {
 		tok := sut.NextToken()
 
