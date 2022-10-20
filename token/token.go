@@ -60,3 +60,15 @@ const (
 	// EXPANDABLE_STRING = "EXPANDABLE_STRING"
 	// STRING            = "STRING"
 )
+
+var reservedWords = map[string]TokenType{
+	"DIM":    DIM,
+	"PUBLIC": PUBLIC,
+}
+
+func LookupIdent(ident string) TokenType {
+	if tokType, ok := reservedWords[ident]; ok {
+		return tokType
+	}
+	return IDENT
+}
