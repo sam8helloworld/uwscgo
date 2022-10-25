@@ -79,7 +79,7 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 	}{
 		{
 			name:  "DIMを使った変数定義",
-			input: `DIM val = 10`,
+			input: `DIM val = 10;`,
 			expected: []token.Token{
 				{
 					Type:    token.DIM,
@@ -101,7 +101,7 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 		},
 		{
 			name:  "PUBLICを使った変数定義",
-			input: `PUBLIC val = 40`,
+			input: `PUBLIC val = 40;`,
 			expected: []token.Token{
 				{
 					Type:    token.PUBLIC,

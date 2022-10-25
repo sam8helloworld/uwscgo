@@ -7,8 +7,9 @@ type Token struct {
 }
 
 const (
-	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
+	ILLEGAL   = "ILLEGAL"
+	EOF       = "EOF"
+	SEMICOLON = ";"
 
 	// PROCEDURE = "PROCEDURE"
 	// FUNCTION  = "FUNCTION"

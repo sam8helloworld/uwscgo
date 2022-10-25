@@ -67,6 +67,11 @@ func (l *Lexer) NextToken() token.Token {
 			Type:    token.COMMA,
 			Literal: string(l.ch),
 		}
+	case ';':
+		tok = token.Token{
+			Type:    token.SEMICOLON,
+			Literal: string(l.ch),
+		}
 	case 0:
 		tok = token.Token{
 			Type:    token.EOF,
