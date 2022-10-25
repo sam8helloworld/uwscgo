@@ -10,9 +10,9 @@ import (
 
 func TestDimStatements(t *testing.T) {
 	input := `
-DIM valA = 5
-DIM valB = 6
-DIM valC = 7
+DIM valA = 5;
+DIM valB = 6;
+DIM valC = 7;
 	`
 	l := lexer.NewLexer(input)
 	p := parser.NewParser(l)
