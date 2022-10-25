@@ -104,8 +104,11 @@ func (p *Parser) parseDimStatement() *ast.DimStatement {
 		return nil
 	}
 
-	// TODO: 文の右辺を構文解析していない1
-	for !p.curTokenIs(token.SEMICOLON) {
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 	return stmt
