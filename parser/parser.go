@@ -10,17 +10,30 @@ import (
 
 type Parser struct {
 	lexer     *lexer.Lexer
+	errors    []string
 	curToken  token.Token
 	peekToken token.Token
 }
 
 func NewParser(l *lexer.Lexer) *Parser {
-	p := &Parser{lexer: l}
+	p := &Parser{
+		lexer:  l,
+		errors: []string{},
+	}
 
 	// 2つのトークンを読み込むことでcurTokenとpeekTokenがセットされる
 	p.nextToken()
 	p.nextToken()
 	return p
+}
+
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
+	p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) nextToken() {
@@ -84,6 +97,7 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
+		p.peekError(t)
 		return false
 	}
 }
