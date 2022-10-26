@@ -235,6 +235,13 @@ func TestParsingInfixExpressions(t *testing.T) {
 			"*",
 			5,
 		},
+		{
+			"整数同士の割り算",
+			"5 / 5",
+			5,
+			"/",
+			5,
+		},
 	}
 
 	for _, tt := range tests {
