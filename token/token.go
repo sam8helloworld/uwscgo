@@ -30,6 +30,7 @@ const (
 	PLUS              = "+"
 	MINUS             = "-"
 	ASTERISK          = "*"
+	SLASH             = "/"
 	LEFT_PARENTHESIS  = "("
 	RIGHT_PARENTHESIS = ")"
 	LEFT_BRACKET      = "{"
