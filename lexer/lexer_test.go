@@ -121,6 +121,36 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "整数の足し算の結果を使った変数定義",
+			input: `DIM val = 5 + 5`,
+			expected: []token.Token{
+				{
+					Type:    token.DIM,
+					Literal: "DIM",
+				},
+				{
+					Type:    token.IDENT,
+					Literal: "val",
+				},
+				{
+					Type:    token.ASSIGN,
+					Literal: "=",
+				},
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+				{
+					Type:    token.PLUS,
+					Literal: "+",
+				},
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+			},
+		},
 	}
 
 	for i, tt := range tests {
