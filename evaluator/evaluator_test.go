@@ -40,6 +40,11 @@ func TestEvalIntegerExpression(t *testing.T) {
 			"5 / 5",
 			1,
 		},
+		{
+			"整数同士の余りを評価できる",
+			"5 MOD 5",
+			0,
+		},
 	}
 
 	for _, tt := range tests {
