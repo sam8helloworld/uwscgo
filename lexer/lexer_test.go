@@ -70,8 +70,84 @@ func TestNextToken(t *testing.T) {
 	}
 }
 
-func TestNextToken_整数型の変数定義(t *testing.T) {
+func TestNextToken_四則演算(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []token.Token
+	}{
+		{
+			name:  "整数の足し算",
+			input: `5 + 5`,
+			expected: []token.Token{
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+				{
+					Type:    token.PLUS,
+					Literal: "+",
+				},
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+			},
+		},
+		{
+			name:  "整数同士の足し算",
+			input: `5 + 5`,
+			expected: []token.Token{
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+				{
+					Type:    token.PLUS,
+					Literal: "+",
+				},
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+			},
+		},
+		{
+			name:  "整数同士の引き算",
+			input: `5 - 5`,
+			expected: []token.Token{
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+				{
+					Type:    token.MINUS,
+					Literal: "-",
+				},
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+			},
+		},
+	}
 
+	for i, tt := range tests {
+		sut := lexer.NewLexer(tt.input)
+		for _, expected := range tt.expected {
+			got := sut.NextToken()
+
+			if got.Type != expected.Type {
+				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
+			}
+			if got.Literal != expected.Literal {
+				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
+			}
+		}
+	}
+}
+
+func TestNextToken_整数型の変数定義(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
@@ -118,36 +194,6 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 				{
 					Type:    token.INT,
 					Literal: "40",
-				},
-			},
-		},
-		{
-			name:  "整数の足し算の結果を使った変数定義",
-			input: `DIM val = 5 + 5`,
-			expected: []token.Token{
-				{
-					Type:    token.DIM,
-					Literal: "DIM",
-				},
-				{
-					Type:    token.IDENT,
-					Literal: "val",
-				},
-				{
-					Type:    token.ASSIGN,
-					Literal: "=",
-				},
-				{
-					Type:    token.INT,
-					Literal: "5",
-				},
-				{
-					Type:    token.PLUS,
-					Literal: "+",
-				},
-				{
-					Type:    token.INT,
-					Literal: "5",
 				},
 			},
 		},
