@@ -8,7 +8,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `=+(){},-*`
+	input := `=+(){},-*/`
 
 	tests := []struct {
 		expected token.Token
@@ -65,6 +65,12 @@ func TestNextToken(t *testing.T) {
 			expected: token.Token{
 				Type:    token.ASTERISK,
 				Literal: "*",
+			},
+		},
+		{
+			expected: token.Token{
+				Type:    token.SLASH,
+				Literal: "/",
 			},
 		},
 	}
@@ -143,7 +149,7 @@ func TestNextToken_四則演算(t *testing.T) {
 			},
 		},
 		{
-			name:  "整数の掛け算",
+			name:  "整数同士の掛け算",
 			input: `5 * 5`,
 			expected: []token.Token{
 				{
@@ -153,6 +159,24 @@ func TestNextToken_四則演算(t *testing.T) {
 				{
 					Type:    token.ASTERISK,
 					Literal: "*",
+				},
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+			},
+		},
+		{
+			name:  "整数同士の割り算",
+			input: `5 / 5`,
+			expected: []token.Token{
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+				{
+					Type:    token.SLASH,
+					Literal: "/",
 				},
 				{
 					Type:    token.INT,
