@@ -242,6 +242,13 @@ func TestParsingInfixExpressions(t *testing.T) {
 			"/",
 			5,
 		},
+		{
+			"整数同士の余り",
+			"5 MOD 5",
+			5,
+			"MOD",
+			5,
+		},
 	}
 
 	for _, tt := range tests {
