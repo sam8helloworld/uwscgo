@@ -5,6 +5,10 @@ import (
 	"github.com/sam8helloworld/uwscgo/object"
 )
 
+var (
+	NULL = &object.Null{}
+)
+
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
@@ -18,6 +22,11 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		env.Set(node.Name.Value, val)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+	case *ast.InfixExpression:
+		left := Eval(node.Left, env)
+		right := Eval(node.Right, env)
+		return evalInfixExpression(node.Operator, left, right)
+
 	}
 	return nil
 }
@@ -38,4 +47,27 @@ func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object
 		return nil
 	}
 	return val
+}
+
+func evalInfixExpression(operator string, left, right object.Object) object.Object {
+	switch {
+	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
+		return evalIntegerInfixExpression(operator, left, right)
+	default:
+		return NULL
+	}
+}
+
+func evalIntegerInfixExpression(operator string, left, right object.Object) object.Object {
+	leftVal := left.(*object.Integer).Value
+	rightVal := right.(*object.Integer).Value
+
+	switch operator {
+	case "+":
+		return &object.Integer{
+			Value: leftVal + rightVal,
+		}
+	default:
+		return NULL
+	}
 }
