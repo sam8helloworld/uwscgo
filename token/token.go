@@ -29,6 +29,7 @@ const (
 	ASSIGN            = "="
 	PLUS              = "+"
 	MINUS             = "-"
+	ASTERISK          = "*"
 	LEFT_PARENTHESIS  = "("
 	RIGHT_PARENTHESIS = ")"
 	LEFT_BRACKET      = "{"
