@@ -22,6 +22,12 @@ func TestDimStatements(t *testing.T) {
 			"val",
 			5,
 		},
+		{
+			"整数の足し算の結果を利用した変数定義",
+			"DIM val = 5 + 5",
+			"val",
+			10,
+		},
 	}
 
 	for _, tt := range tests {
