@@ -67,9 +67,10 @@ func (l *Lexer) NextToken() token.Token {
 			Type:    token.COMMA,
 			Literal: string(l.ch),
 		}
-	case ';':
+	case '\r':
+	case '\n':
 		tok = token.Token{
-			Type:    token.SEMICOLON,
+			Type:    token.EOL,
 			Literal: string(l.ch),
 		}
 	case 0:
@@ -114,7 +115,7 @@ func (l *Lexer) readNumber() string {
 }
 
 func (l *Lexer) skipWhiteSpace() {
-	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+	for l.ch == ' ' || l.ch == '\t' {
 		l.readChar()
 	}
 }
