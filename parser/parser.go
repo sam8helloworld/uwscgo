@@ -108,7 +108,7 @@ func (p *Parser) parseDimStatement() *ast.DimStatement {
 
 	stmt.Value = p.parseExpression(LOWEST)
 
-	if p.peekTokenIs(token.SEMICOLON) {
+	if p.peekTokenIs(token.EOL) {
 		p.nextToken()
 	}
 	return stmt
@@ -119,7 +119,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 	stmt.Expression = p.parseExpression(LOWEST)
 
-	if p.peekTokenIs(token.SEMICOLON) {
+	if p.peekTokenIs(token.EOL) {
 		p.nextToken()
 	}
 

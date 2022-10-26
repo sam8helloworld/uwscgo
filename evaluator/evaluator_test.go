@@ -61,12 +61,15 @@ func TestDimStatements(t *testing.T) {
 	}{
 		{
 			"整数の変数定義(1つ)",
-			"DIM val = 5;val;",
+			`DIM val = 5
+val`,
 			5,
 		},
 		{
 			"整数の変数を整数の変数に代入",
-			"DIM valA = 5;DIM valB = valA;valB",
+			`DIM valA = 5
+DIM valB = valA
+valB`,
 			5,
 		},
 	}
