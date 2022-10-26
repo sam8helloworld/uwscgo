@@ -228,6 +228,13 @@ func TestParsingInfixExpressions(t *testing.T) {
 			"-",
 			5,
 		},
+		{
+			"整数同士の掛け算",
+			"5 * 5",
+			5,
+			"*",
+			5,
+		},
 	}
 
 	for _, tt := range tests {
