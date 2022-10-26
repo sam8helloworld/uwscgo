@@ -116,7 +116,7 @@ func TestIdentifierExpression(t *testing.T) {
 }
 
 func TestIntegerLiteralExpression(t *testing.T) {
-	input := `5;`
+	input := `5`
 
 	l := lexer.NewLexer(input)
 	p := parser.NewParser(l)
