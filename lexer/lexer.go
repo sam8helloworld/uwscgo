@@ -42,6 +42,11 @@ func (l *Lexer) NextToken() token.Token {
 			Type:    token.PLUS,
 			Literal: string(l.ch),
 		}
+	case '-':
+		tok = token.Token{
+			Type:    token.MINUS,
+			Literal: string(l.ch),
+		}
 	case '(':
 		tok = token.Token{
 			Type:    token.LEFT_PARENTHESIS,
