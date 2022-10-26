@@ -6,6 +6,7 @@ type ObjectType string
 
 const (
 	INTEGER_OBJ = "INTEGER"
+	NULL_OBJ    = "NULL"
 )
 
 type Object interface {
@@ -23,4 +24,14 @@ func (i *Integer) Inspect() string {
 
 func (i *Integer) Type() ObjectType {
 	return INTEGER_OBJ
+}
+
+type Null struct{}
+
+func (n *Null) Inspect() string {
+	return "null"
+}
+
+func (n *Null) Type() ObjectType {
+	return NULL_OBJ
 }
