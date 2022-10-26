@@ -52,6 +52,11 @@ func (l *Lexer) NextToken() token.Token {
 			Type:    token.ASTERISK,
 			Literal: string(l.ch),
 		}
+	case '/':
+		tok = token.Token{
+			Type:    token.SLASH,
+			Literal: string(l.ch),
+		}
 	case '(':
 		tok = token.Token{
 			Type:    token.LEFT_PARENTHESIS,
