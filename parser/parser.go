@@ -21,7 +21,8 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
-	token.PLUS: SUM,
+	token.PLUS:  SUM,
+	token.MINUS: SUM,
 }
 
 type (
@@ -51,6 +52,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
+	p.registerInfix(token.MINUS, p.parseInfixExpression)
 
 	// 2つのトークンを読み込むことでcurTokenとpeekTokenがセットされる
 	p.nextToken()

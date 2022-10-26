@@ -215,10 +215,17 @@ func TestParsingInfixExpressions(t *testing.T) {
 		rightValue int64
 	}{
 		{
-			"整数の足し算",
+			"整数同士の足し算",
 			"5 + 5",
 			5,
 			"+",
+			5,
+		},
+		{
+			"整数同士の引き算",
+			"5 - 5",
+			5,
+			"-",
 			5,
 		},
 	}
