@@ -184,6 +184,24 @@ func TestNextToken_四則演算(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "整数同士の余り",
+			input: `5 MOD 5`,
+			expected: []token.Token{
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+				{
+					Type:    token.MOD,
+					Literal: "MOD",
+				},
+				{
+					Type:    token.INT,
+					Literal: "5",
+				},
+			},
+		},
 	}
 
 	for i, tt := range tests {

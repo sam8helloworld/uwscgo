@@ -79,6 +79,10 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 		return &object.Integer{
 			Value: leftVal / rightVal,
 		}
+	case "MOD":
+		return &object.Integer{
+			Value: leftVal % rightVal,
+		}
 	default:
 		return NULL
 	}

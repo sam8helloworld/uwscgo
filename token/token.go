@@ -31,6 +31,7 @@ const (
 	MINUS             = "-"
 	ASTERISK          = "*"
 	SLASH             = "/"
+	MOD               = "MOD"
 	LEFT_PARENTHESIS  = "("
 	RIGHT_PARENTHESIS = ")"
 	LEFT_BRACKET      = "{"
@@ -68,6 +69,7 @@ const (
 var reservedWords = map[string]TokenType{
 	"DIM":    DIM,
 	"PUBLIC": PUBLIC,
+	"MOD":    MOD,
 }
 
 func LookupIdent(ident string) TokenType {
