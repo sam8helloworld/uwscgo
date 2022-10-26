@@ -30,6 +30,11 @@ func TestEvalIntegerExpression(t *testing.T) {
 			"5 - 5",
 			0,
 		},
+		{
+			"整数同士の掛け算を評価できる",
+			"5 * 5",
+			25,
+		},
 	}
 
 	for _, tt := range tests {
