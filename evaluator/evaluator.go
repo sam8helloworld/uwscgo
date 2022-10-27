@@ -6,7 +6,9 @@ import (
 )
 
 var (
-	NULL = &object.Null{}
+	NULL  = &object.Null{}
+	TRUE  = &object.Boolean{Value: true}
+	FALSE = &object.Boolean{Value: false}
 )
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
@@ -29,6 +31,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		left := Eval(node.Left, env)
 		right := Eval(node.Right, env)
 		return evalInfixExpression(node.Operator, left, right)
+	case *ast.Boolean:
+		return nativeBoolToBooleanObject(node.Value)
 	}
 	return nil
 }
@@ -106,4 +110,11 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	default:
 		return NULL
 	}
+}
+
+func nativeBoolToBooleanObject(input bool) *object.Boolean {
+	if input {
+		return TRUE
+	}
+	return FALSE
 }
