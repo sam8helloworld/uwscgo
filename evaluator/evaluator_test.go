@@ -45,6 +45,11 @@ func TestEvalIntegerExpression(t *testing.T) {
 			"5 MOD 5",
 			0,
 		},
+		{
+			"マイナスの整数を評価できる",
+			"-5",
+			-5,
+		},
 	}
 
 	for _, tt := range tests {
