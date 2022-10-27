@@ -286,3 +286,54 @@ func TestParsingInfixExpressions(t *testing.T) {
 		})
 	}
 }
+
+func TestParsingPrefixExpression(t *testing.T) {
+	tests := []struct {
+		name         string
+		input        string
+		operator     string
+		integerValue int64
+	}{
+		{
+			"エクスクラメーションマークが前置する",
+			"!5",
+			"!",
+			5,
+		},
+		{
+			"ハイフンが前置する(=マイナス)",
+			"-15",
+			"-",
+			15,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.NewLexer(tt.input)
+			p := parser.NewParser(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			if len(program.Statements) != 1 {
+				t.Fatalf("program.Statements does not contain %d statememts. got=%d\n", 1, len(program.Statements))
+			}
+
+			stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+			if !ok {
+				t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+			}
+			exp, ok := stmt.Expression.(*ast.PrefixExpression)
+			if !ok {
+				t.Fatalf("stmt.Expression is not ast.PrefixExpression. got=%T", stmt.Expression)
+			}
+			if exp.Operator != tt.operator {
+				t.Fatalf("exp.Operator is not %s. got=%s", tt.operator, exp.Operator)
+			}
+
+			if !testIntegerLiteral(t, exp.Right, tt.integerValue) {
+				return
+			}
+		})
+	}
+}
