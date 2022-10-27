@@ -337,3 +337,82 @@ func TestParsingPrefixExpression(t *testing.T) {
 		})
 	}
 }
+
+func TestOperatorPrecedenceParsing(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			"中置演算子の位置パターン01",
+			"-a * b",
+			"((-a) * b)",
+		},
+		{
+			"中置演算子の位置パターン02",
+			"!-a",
+			"(!(-a))",
+		},
+		{
+			"中置演算子の位置パターン03",
+			"a + b + c",
+			"((a + b) + c)",
+		},
+		{
+			"中置演算子の位置パターン04",
+			"a + b - c",
+			"((a + b) - c)",
+		},
+		{
+			"中置演算子の位置パターン05",
+			"a * b * c",
+			"((a * b) * c)",
+		},
+		{
+			"中置演算子の位置パターン06",
+			"a * b / c",
+			"((a * b) / c)",
+		},
+		{
+			"中置演算子の位置パターン07",
+			"a + b / c",
+			"(a + (b / c))",
+		},
+		{
+			"中置演算子の位置パターン08",
+			"a + b * c + d / e - f",
+			"(((a + (b * c)) + (d / e)) - f)",
+		},
+		{
+			"中置演算子の位置パターン09",
+			`3 + 4
+-5 * 5`,
+			"(3 + 4)((-5) * 5)",
+		},
+		{
+			"真偽値TRUE",
+			"TRUE",
+			"TRUE",
+		},
+		{
+			"真偽値FALSE",
+			"FALSE",
+			"FALSE",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.NewLexer(tt.input)
+			p := parser.NewParser(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			actual := program.String()
+			if actual != tt.expected {
+				t.Errorf("expected=%q, got=%q", tt.expected, actual)
+			}
+		})
+	}
+}
