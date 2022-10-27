@@ -8,7 +8,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := `=+(){},-*/`
+	input := `=+(){},-*/!`
 
 	tests := []struct {
 		expected token.Token
@@ -71,6 +71,12 @@ func TestNextToken(t *testing.T) {
 			expected: token.Token{
 				Type:    token.SLASH,
 				Literal: "/",
+			},
+		},
+		{
+			expected: token.Token{
+				Type:    token.BANG,
+				Literal: "!",
 			},
 		},
 	}
