@@ -291,3 +291,46 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 		}
 	}
 }
+
+func TestNextToken_真偽値(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []token.Token
+	}{
+		{
+			name:  "TRUE",
+			input: `TRUE`,
+			expected: []token.Token{
+				{
+					Type:    token.TRUE,
+					Literal: "TRUE",
+				},
+			},
+		},
+		{
+			name:  "FALSE",
+			input: `FALSE`,
+			expected: []token.Token{
+				{
+					Type:    token.FALSE,
+					Literal: "FALSE",
+				},
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		sut := lexer.NewLexer(tt.input)
+		for _, expected := range tt.expected {
+			got := sut.NextToken()
+
+			if got.Type != expected.Type {
+				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
+			}
+			if got.Literal != expected.Literal {
+				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
+			}
+		}
+	}
+}
