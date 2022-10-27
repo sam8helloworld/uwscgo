@@ -32,6 +32,7 @@ const (
 	ASTERISK          = "*"
 	SLASH             = "/"
 	MOD               = "MOD"
+	BANG              = "!"
 	LEFT_PARENTHESIS  = "("
 	RIGHT_PARENTHESIS = ")"
 	LEFT_BRACKET      = "{"
