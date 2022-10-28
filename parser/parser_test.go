@@ -2,6 +2,7 @@ package parser_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/sam8helloworld/uwscgo/ast"
@@ -251,28 +252,55 @@ func TestParsingInfixExpressions(t *testing.T) {
 			"MOD",
 			5,
 		},
-		// TODO: 演算子実装後にコメントを外す
-		// {
-		// 	"TRUE同士を等価比較する",
-		// 	"TRUE = TRUE",
-		// 	true,
-		// 	"=",
-		// 	true,
-		// },
-		// {
-		// 	"TRUEとFALSEを等価比較する",
-		// 	"TRUE <> FALSE",
-		// 	true,
-		// 	"<>",
-		// 	false,
-		// },
-		// {
-		// 	"FALSE同士を等価比較する",
-		// 	"FALSE = FALSE",
-		// 	false,
-		// 	"=",
-		// 	false,
-		// },
+		{
+			"整数同士の比較(大なり)",
+			"5 > 5",
+			5,
+			">",
+			5,
+		},
+		{
+			"整数同士の比較(小なり)",
+			"5 < 5",
+			5,
+			"<",
+			5,
+		},
+		{
+			"整数同士の比較(等価)",
+			"5 = 5",
+			5,
+			"=",
+			5,
+		},
+		{
+			"整数同士の比較(等価の否定)",
+			"5 <> 5",
+			5,
+			"<>",
+			5,
+		},
+		{
+			"TRUE同士を等価比較する",
+			"TRUE = TRUE",
+			true,
+			"=",
+			true,
+		},
+		{
+			"TRUEとFALSEを等価比較する",
+			"TRUE <> FALSE",
+			true,
+			"<>",
+			false,
+		},
+		{
+			"FALSE同士を等価比較する",
+			"FALSE = FALSE",
+			false,
+			"=",
+			false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -462,8 +490,8 @@ func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
 		return false
 	}
 
-	if bo.TokenLiteral() != fmt.Sprintf("%t", value) {
-		t.Errorf("bo.TokenLiteral not %t. got=%s", value, bo.TokenLiteral())
+	if bo.TokenLiteral() != strings.ToUpper(fmt.Sprintf("%t", value)) {
+		t.Errorf("bo.TokenLiteral not %s. got=%s", strings.ToUpper(fmt.Sprintf("%t", value)), bo.TokenLiteral())
 		return false
 	}
 	return true

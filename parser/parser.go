@@ -12,7 +12,7 @@ import (
 const (
 	_ int = iota
 	LOWEST
-	EQUALS      // ==
+	EQUALS      // = または <>
 	LESSGREATER // > または <
 	SUM         // +
 	PRODUCT     // *
@@ -21,11 +21,17 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
-	token.PLUS:     SUM,
-	token.MINUS:    SUM,
-	token.SLASH:    PRODUCT,
-	token.ASTERISK: PRODUCT,
-	token.MOD:      PRODUCT,
+	token.EQUAL_OR_ASSIGN:       EQUALS,
+	token.NOT_EQUAL:             EQUALS,
+	token.LESS_THAN:             LESSGREATER,
+	token.LESS_THAN_OR_EQUAL:    LESSGREATER,
+	token.GREATER_THAN:          LESSGREATER,
+	token.GREATER_THAN_OR_EQUAL: LESSGREATER,
+	token.PLUS:                  SUM,
+	token.MINUS:                 SUM,
+	token.SLASH:                 PRODUCT,
+	token.ASTERISK:              PRODUCT,
+	token.MOD:                   PRODUCT,
 }
 
 type (
@@ -58,6 +64,12 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
+	p.registerInfix(token.EQUAL_OR_ASSIGN, p.parseInfixExpression)
+	p.registerInfix(token.NOT_EQUAL, p.parseInfixExpression)
+	p.registerInfix(token.LESS_THAN, p.parseInfixExpression)
+	p.registerInfix(token.LESS_THAN_OR_EQUAL, p.parseInfixExpression)
+	p.registerInfix(token.GREATER_THAN, p.parseInfixExpression)
+	p.registerInfix(token.GREATER_THAN_OR_EQUAL, p.parseInfixExpression)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
 	p.registerInfix(token.SLASH, p.parseInfixExpression)
@@ -119,7 +131,7 @@ func (p *Parser) parseDimStatement() *ast.DimStatement {
 
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
-	if !p.expectPeek(token.ASSIGN) {
+	if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
 		return nil
 	}
 

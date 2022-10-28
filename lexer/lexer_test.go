@@ -15,7 +15,7 @@ func TestNextToken(t *testing.T) {
 	}{
 		{
 			expected: token.Token{
-				Type:    token.ASSIGN,
+				Type:    token.EQUAL_OR_ASSIGN,
 				Literal: "=",
 			},
 		},
@@ -244,7 +244,7 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 					Literal: "val",
 				},
 				{
-					Type:    token.ASSIGN,
+					Type:    token.EQUAL_OR_ASSIGN,
 					Literal: "=",
 				},
 				{
@@ -266,7 +266,7 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 					Literal: "val",
 				},
 				{
-					Type:    token.ASSIGN,
+					Type:    token.EQUAL_OR_ASSIGN,
 					Literal: "=",
 				},
 				{
@@ -315,6 +315,89 @@ func TestNextToken_真偽値(t *testing.T) {
 				{
 					Type:    token.FALSE,
 					Literal: "FALSE",
+				},
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		sut := lexer.NewLexer(tt.input)
+		for _, expected := range tt.expected {
+			got := sut.NextToken()
+
+			if got.Type != expected.Type {
+				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
+			}
+			if got.Literal != expected.Literal {
+				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
+			}
+		}
+	}
+}
+
+func TestNextToken_比較演算子(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []token.Token
+	}{
+		{
+			name:  "等価比較",
+			input: `=`,
+			expected: []token.Token{
+				{
+					Type:    token.EQUAL_OR_ASSIGN,
+					Literal: "=",
+				},
+			},
+		},
+		{
+			name:  "等価比較の否定",
+			input: `<>`,
+			expected: []token.Token{
+				{
+					Type:    token.NOT_EQUAL,
+					Literal: "<>",
+				},
+			},
+		},
+		{
+			name:  "未満",
+			input: `<`,
+			expected: []token.Token{
+				{
+					Type:    token.LESS_THAN,
+					Literal: "<",
+				},
+			},
+		},
+		{
+			name:  "以下",
+			input: `<=`,
+			expected: []token.Token{
+				{
+					Type:    token.LESS_THAN_OR_EQUAL,
+					Literal: "<=",
+				},
+			},
+		},
+		{
+			name:  "超過",
+			input: `>`,
+			expected: []token.Token{
+				{
+					Type:    token.GREATER_THAN,
+					Literal: ">",
+				},
+			},
+		},
+		{
+			name:  "以上",
+			input: `>=`,
+			expected: []token.Token{
+				{
+					Type:    token.GREATER_THAN_OR_EQUAL,
+					Literal: ">=",
 				},
 			},
 		},
