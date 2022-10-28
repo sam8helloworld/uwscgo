@@ -2,6 +2,7 @@ package parser_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/sam8helloworld/uwscgo/ast"
@@ -260,7 +261,7 @@ func TestParsingInfixExpressions(t *testing.T) {
 		},
 		{
 			"整数同士の比較(小なり)",
-			"5 > 5",
+			"5 < 5",
 			5,
 			"<",
 			5,
@@ -489,8 +490,8 @@ func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
 		return false
 	}
 
-	if bo.TokenLiteral() != fmt.Sprintf("%t", value) {
-		t.Errorf("bo.TokenLiteral not %t. got=%s", value, bo.TokenLiteral())
+	if bo.TokenLiteral() != strings.ToUpper(fmt.Sprintf("%t", value)) {
+		t.Errorf("bo.TokenLiteral not %s. got=%s", strings.ToUpper(fmt.Sprintf("%t", value)), bo.TokenLiteral())
 		return false
 	}
 	return true
