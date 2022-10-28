@@ -251,28 +251,55 @@ func TestParsingInfixExpressions(t *testing.T) {
 			"MOD",
 			5,
 		},
-		// TODO: 演算子実装後にコメントを外す
-		// {
-		// 	"TRUE同士を等価比較する",
-		// 	"TRUE = TRUE",
-		// 	true,
-		// 	"=",
-		// 	true,
-		// },
-		// {
-		// 	"TRUEとFALSEを等価比較する",
-		// 	"TRUE <> FALSE",
-		// 	true,
-		// 	"<>",
-		// 	false,
-		// },
-		// {
-		// 	"FALSE同士を等価比較する",
-		// 	"FALSE = FALSE",
-		// 	false,
-		// 	"=",
-		// 	false,
-		// },
+		{
+			"整数同士の比較(大なり)",
+			"5 > 5",
+			5,
+			">",
+			5,
+		},
+		{
+			"整数同士の比較(小なり)",
+			"5 > 5",
+			5,
+			"<",
+			5,
+		},
+		{
+			"整数同士の比較(等価)",
+			"5 = 5",
+			5,
+			"=",
+			5,
+		},
+		{
+			"整数同士の比較(等価の否定)",
+			"5 <> 5",
+			5,
+			"<>",
+			5,
+		},
+		{
+			"TRUE同士を等価比較する",
+			"TRUE = TRUE",
+			true,
+			"=",
+			true,
+		},
+		{
+			"TRUEとFALSEを等価比較する",
+			"TRUE <> FALSE",
+			true,
+			"<>",
+			false,
+		},
+		{
+			"FALSE同士を等価比較する",
+			"FALSE = FALSE",
+			false,
+			"=",
+			false,
+		},
 	}
 
 	for _, tt := range tests {
