@@ -34,7 +34,7 @@ func (l *Lexer) NextToken() token.Token {
 	switch l.ch {
 	case '=':
 		tok = token.Token{
-			Type:    token.ASSIGN,
+			Type:    token.EQUAL_OR_ASSIGN,
 			Literal: string(l.ch),
 		}
 	case '+':

@@ -119,7 +119,7 @@ func (p *Parser) parseDimStatement() *ast.DimStatement {
 
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
-	if !p.expectPeek(token.ASSIGN) {
+	if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
 		return nil
 	}
 

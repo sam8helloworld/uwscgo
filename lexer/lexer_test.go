@@ -15,7 +15,7 @@ func TestNextToken(t *testing.T) {
 	}{
 		{
 			expected: token.Token{
-				Type:    token.ASSIGN,
+				Type:    token.EQUAL_OR_ASSIGN,
 				Literal: "=",
 			},
 		},
@@ -244,7 +244,7 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 					Literal: "val",
 				},
 				{
-					Type:    token.ASSIGN,
+					Type:    token.EQUAL_OR_ASSIGN,
 					Literal: "=",
 				},
 				{
@@ -266,7 +266,7 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 					Literal: "val",
 				},
 				{
-					Type:    token.ASSIGN,
+					Type:    token.EQUAL_OR_ASSIGN,
 					Literal: "=",
 				},
 				{
