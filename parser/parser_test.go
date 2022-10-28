@@ -178,6 +178,8 @@ func testLiteralExpression(
 		return testIntegerLiteral(t, exp, v)
 	case string:
 		return testIdentifier(t, exp, v)
+	case bool:
+		return testBooleanLiteral(t, exp, v)
 	}
 	t.Errorf("type of exp not handled. got=%T", exp)
 	return false
@@ -210,9 +212,9 @@ func TestParsingInfixExpressions(t *testing.T) {
 	tests := []struct {
 		name       string
 		input      string
-		leftValue  int64
+		leftValue  interface{}
 		operator   string
-		rightValue int64
+		rightValue interface{}
 	}{
 		{
 			"整数同士の足し算",
@@ -249,6 +251,28 @@ func TestParsingInfixExpressions(t *testing.T) {
 			"MOD",
 			5,
 		},
+		// TODO: 演算子実装後にコメントを外す
+		// {
+		// 	"TRUE同士を等価比較する",
+		// 	"TRUE = TRUE",
+		// 	true,
+		// 	"=",
+		// 	true,
+		// },
+		// {
+		// 	"TRUEとFALSEを等価比較する",
+		// 	"TRUE <> FALSE",
+		// 	true,
+		// 	"<>",
+		// 	false,
+		// },
+		// {
+		// 	"FALSE同士を等価比較する",
+		// 	"FALSE = FALSE",
+		// 	false,
+		// 	"=",
+		// 	false,
+		// },
 	}
 
 	for _, tt := range tests {
@@ -267,24 +291,33 @@ func TestParsingInfixExpressions(t *testing.T) {
 				t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
 			}
 
-			exp, ok := stmt.Expression.(*ast.InfixExpression)
-			if !ok {
-				t.Fatalf("stmt.Expression is not ast.InfixExpression. got=%T", stmt.Expression)
-			}
-
-			if !testIntegerLiteral(t, exp.Left, tt.leftValue) {
-				return
-			}
-
-			if exp.Operator != tt.operator {
-				t.Fatalf("exp.Operator is not '%s'. got=%s", tt.operator, exp.Operator)
-			}
-
-			if !testIntegerLiteral(t, exp.Right, tt.rightValue) {
+			if !testInfixExpression(t, stmt.Expression, tt.leftValue, tt.operator, tt.rightValue) {
 				return
 			}
 		})
 	}
+}
+
+func testInfixExpression(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
+	opExp, ok := exp.(*ast.InfixExpression)
+	if !ok {
+		t.Fatalf("exp is not ast.InfixExpression. got=%T(%s)", exp, exp)
+		return false
+	}
+
+	if !testLiteralExpression(t, opExp.Left, left) {
+		return false
+	}
+
+	if opExp.Operator != operator {
+		t.Errorf("exp.Operator is not '%s'. got=%q", operator, opExp.Operator)
+		return false
+	}
+
+	if !testLiteralExpression(t, opExp.Right, right) {
+		return false
+	}
+	return true
 }
 
 func TestParsingPrefixExpression(t *testing.T) {
@@ -415,4 +448,23 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			}
 		})
 	}
+}
+
+func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
+	bo, ok := exp.(*ast.Boolean)
+	if !ok {
+		t.Fatalf("exp not *ast.Boolean. got=%T", exp)
+		return false
+	}
+
+	if bo.Value != value {
+		t.Errorf("bo.Value not %t. got=%t", value, bo.Value)
+		return false
+	}
+
+	if bo.TokenLiteral() != fmt.Sprintf("%t", value) {
+		t.Errorf("bo.TokenLiteral not %t. got=%s", value, bo.TokenLiteral())
+		return false
+	}
+	return true
 }
