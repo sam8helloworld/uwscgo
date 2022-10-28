@@ -288,17 +288,72 @@ func TestNextToken_比較演算子(t *testing.T) {
 		},
 	}
 
-	for i, tt := range tests {
-		sut := lexer.NewLexer(tt.input)
-		for _, expected := range tt.expected {
-			got := sut.NextToken()
+	testToken(t, tests)
+}
 
-			if got.Type != expected.Type {
-				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
-			}
-			if got.Literal != expected.Literal {
-				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
-			}
-		}
+func TestNextToken_条件分岐(t *testing.T) {
+	tests := []Args{
+		{
+			name:  "IF",
+			input: `IF`,
+			expected: []token.Token{
+				{
+					Type:    token.IF,
+					Literal: "IF",
+				},
+			},
+		},
+		{
+			name:  "ELSEIF",
+			input: `ELSEIF`,
+			expected: []token.Token{
+				{
+					Type:    token.ELSEIF,
+					Literal: "ELSEIF",
+				},
+			},
+		},
+		{
+			name:  "ELSE",
+			input: `ELSE`,
+			expected: []token.Token{
+				{
+					Type:    token.ELSE,
+					Literal: "ELSE",
+				},
+			},
+		},
+		{
+			name:  "IFB",
+			input: `IFB`,
+			expected: []token.Token{
+				{
+					Type:    token.IFB,
+					Literal: "IFB",
+				},
+			},
+		},
+		{
+			name:  "ENDIF",
+			input: `ENDIF`,
+			expected: []token.Token{
+				{
+					Type:    token.ENDIF,
+					Literal: "ENDIF",
+				},
+			},
+		},
+		{
+			name:  "THEN",
+			input: `THEN`,
+			expected: []token.Token{
+				{
+					Type:    token.THEN,
+					Literal: "THEN",
+				},
+			},
+		},
 	}
+
+	testToken(t, tests)
 }
