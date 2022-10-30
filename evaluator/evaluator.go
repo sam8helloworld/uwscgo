@@ -33,6 +33,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.IfExpression:
+		return evalIfExpression(node, env)
 	}
 	return nil
 }
@@ -129,4 +131,29 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 		return TRUE
 	}
 	return FALSE
+}
+
+func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Object {
+	condition := Eval(ie.Condition, env)
+	if isTruthy(condition) {
+		return Eval(ie.Consequence, env)
+	} else if ie.Alternative != nil {
+		return Eval(ie.Alternative, env)
+	} else {
+		return NULL
+	}
+}
+
+// 仕様として「0」と「FALSE」が偽でそれ以外は真とする
+func isTruthy(obj object.Object) bool {
+	if obj == FALSE {
+		return false
+	}
+	if obj.Type() == object.INTEGER_OBJ {
+		v := obj.(*object.Integer).Value
+		if v == 0 {
+			return false
+		}
+	}
+	return true
 }
