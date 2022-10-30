@@ -47,11 +47,12 @@ const (
 	RIGHT_BRACKET         = "}"
 	COMMA                 = ","
 
-	// IF     = "IF"
-	// ELSEIF = "ELSEIF"
-	// ELSE   = "ELSE"
-	// IFB    = "IFB"
-	// ENDIF  = "ENDIF"
+	IF     = "IF"
+	ELSEIF = "ELSEIF"
+	ELSE   = "ELSE"
+	IFB    = "IFB"
+	ENDIF  = "ENDIF"
+	THEN   = "THEN"
 
 	// WHILE = "WHILE"
 	// WEND  = "WEND"
@@ -81,6 +82,12 @@ var reservedWords = map[string]TokenType{
 	"TRUE":   TRUE,
 	"FALSE":  FALSE,
 	"MOD":    MOD,
+	"IF":     IF,
+	"ELSEIF": ELSEIF,
+	"ELSE":   ELSE,
+	"IFB":    IFB,
+	"ENDIF":  ENDIF,
+	"THEN":   THEN,
 }
 
 func LookupIdent(ident string) TokenType {

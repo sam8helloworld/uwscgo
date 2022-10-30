@@ -521,3 +521,48 @@ func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
 	}
 	return true
 }
+
+func TestIfExpression(t *testing.T) {
+	input := `IF x < y THEN x ELSE y`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression is not ast.IfExpression. got=%T", stmt.Expression)
+	}
+
+	if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
+		return
+	}
+
+	consequence, ok := exp.Consequence.(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("exp.Consequence is not ast.ExpressionStatement. got=%T", exp.Consequence)
+	}
+
+	if !testIdentifier(t, consequence.Expression, "x") {
+		return
+	}
+
+	alternative, ok := exp.Alternative.(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("exp.Alternative is not ast.ExpressionStatement. got=%T", exp.Alternative)
+	}
+
+	if !testIdentifier(t, alternative.Expression, "y") {
+		return
+	}
+}

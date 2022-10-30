@@ -239,3 +239,62 @@ func testBoolenObject(t *testing.T, obj object.Object, expected bool) bool {
 	}
 	return true
 }
+
+func TestIfElseExpression(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected interface{}
+	}{
+		{
+			"条件式がTRUEの真偽値の場合THENの後の式を処理する",
+			"IF TRUE THEN 10",
+			10,
+		},
+		{
+			"条件式がFALSEの真偽値の場合THENの後の式を処理しない",
+			"IF FALSE THEN 10",
+			nil,
+		},
+		{
+			"条件式が0の場合THENの後の式を処理しない",
+			"IF 0 THEN 10",
+			nil,
+		},
+		{
+			"条件式が0以外の場合THENの後の式を処理する",
+			"IF 1 THEN 10",
+			10,
+		},
+		{
+			"条件式の評価がTRUEになる場合THENの後の式を処理する",
+			"IF 1 < 2 THEN 10 ELSE 20",
+			10,
+		},
+		{
+			"条件式の評価がFALSEになる場合ELSEの後の式を処理する",
+			"IF 1 > 2 THEN 10 ELSE 20",
+			20,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			integer, ok := tt.expected.(int)
+			if ok {
+				testIntegerObject(t, evaluated, int64(integer))
+			} else {
+				testNullObject(t, evaluated)
+			}
+		})
+	}
+}
+
+func testNullObject(t *testing.T, obj object.Object) bool {
+	if obj != evaluator.NULL {
+		t.Errorf("object is not NULL. got=%T (%+v)", obj, obj)
+		return false
+	}
+	return true
+}

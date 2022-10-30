@@ -7,99 +7,32 @@ import (
 	"github.com/sam8helloworld/uwscgo/token"
 )
 
-func TestNextToken(t *testing.T) {
-	input := `=+(){},-*/!`
+type Args struct {
+	name     string
+	input    string
+	expected []token.Token
+}
 
-	tests := []struct {
-		expected token.Token
-	}{
-		{
-			expected: token.Token{
-				Type:    token.EQUAL_OR_ASSIGN,
-				Literal: "=",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.PLUS,
-				Literal: "+",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.LEFT_PARENTHESIS,
-				Literal: "(",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.RIGHT_PARENTHESIS,
-				Literal: ")",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.LEFT_BRACKET,
-				Literal: "{",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.RIGHT_BRACKET,
-				Literal: "}",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.COMMA,
-				Literal: ",",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.MINUS,
-				Literal: "-",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.ASTERISK,
-				Literal: "*",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.SLASH,
-				Literal: "/",
-			},
-		},
-		{
-			expected: token.Token{
-				Type:    token.BANG,
-				Literal: "!",
-			},
-		},
-	}
-
-	sut := lexer.NewLexer(input)
+func testToken(t *testing.T, tests []Args) {
 	for i, tt := range tests {
-		tok := sut.NextToken()
+		t.Run(tt.name, func(t *testing.T) {
+			sut := lexer.NewLexer(tt.input)
+			for _, expected := range tt.expected {
+				got := sut.NextToken()
 
-		if tok.Type != tt.expected.Type {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expected.Type, tok.Type)
-		}
-		if tok.Literal != tt.expected.Literal {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expected.Literal, tok.Literal)
-		}
+				if got.Type != expected.Type {
+					t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
+				}
+				if got.Literal != expected.Literal {
+					t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
+				}
+			}
+		})
 	}
 }
 
 func TestNextToken_四則演算(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected []token.Token
-	}{
+	tests := []Args{
 		{
 			name:  "整数の足し算",
 			input: `5 + 5`,
@@ -210,27 +143,11 @@ func TestNextToken_四則演算(t *testing.T) {
 		},
 	}
 
-	for i, tt := range tests {
-		sut := lexer.NewLexer(tt.input)
-		for _, expected := range tt.expected {
-			got := sut.NextToken()
-
-			if got.Type != expected.Type {
-				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
-			}
-			if got.Literal != expected.Literal {
-				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
-			}
-		}
-	}
+	testToken(t, tests)
 }
 
 func TestNextToken_整数型の変数定義(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected []token.Token
-	}{
+	tests := []Args{
 		{
 			name:  "DIMを使った変数定義",
 			input: `DIM val = 10`,
@@ -277,27 +194,11 @@ func TestNextToken_整数型の変数定義(t *testing.T) {
 		},
 	}
 
-	for i, tt := range tests {
-		sut := lexer.NewLexer(tt.input)
-		for _, expected := range tt.expected {
-			got := sut.NextToken()
-
-			if got.Type != expected.Type {
-				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
-			}
-			if got.Literal != expected.Literal {
-				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
-			}
-		}
-	}
+	testToken(t, tests)
 }
 
 func TestNextToken_真偽値(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected []token.Token
-	}{
+	tests := []Args{
 		{
 			name:  "TRUE",
 			input: `TRUE`,
@@ -320,27 +221,11 @@ func TestNextToken_真偽値(t *testing.T) {
 		},
 	}
 
-	for i, tt := range tests {
-		sut := lexer.NewLexer(tt.input)
-		for _, expected := range tt.expected {
-			got := sut.NextToken()
-
-			if got.Type != expected.Type {
-				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
-			}
-			if got.Literal != expected.Literal {
-				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
-			}
-		}
-	}
+	testToken(t, tests)
 }
 
 func TestNextToken_比較演算子(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected []token.Token
-	}{
+	tests := []Args{
 		{
 			name:  "等価比較",
 			input: `=`,
@@ -403,17 +288,72 @@ func TestNextToken_比較演算子(t *testing.T) {
 		},
 	}
 
-	for i, tt := range tests {
-		sut := lexer.NewLexer(tt.input)
-		for _, expected := range tt.expected {
-			got := sut.NextToken()
+	testToken(t, tests)
+}
 
-			if got.Type != expected.Type {
-				t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, expected.Type, got.Type)
-			}
-			if got.Literal != expected.Literal {
-				t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, expected.Literal, got.Literal)
-			}
-		}
+func TestNextToken_条件分岐(t *testing.T) {
+	tests := []Args{
+		{
+			name:  "IF",
+			input: `IF`,
+			expected: []token.Token{
+				{
+					Type:    token.IF,
+					Literal: "IF",
+				},
+			},
+		},
+		{
+			name:  "ELSEIF",
+			input: `ELSEIF`,
+			expected: []token.Token{
+				{
+					Type:    token.ELSEIF,
+					Literal: "ELSEIF",
+				},
+			},
+		},
+		{
+			name:  "ELSE",
+			input: `ELSE`,
+			expected: []token.Token{
+				{
+					Type:    token.ELSE,
+					Literal: "ELSE",
+				},
+			},
+		},
+		{
+			name:  "IFB",
+			input: `IFB`,
+			expected: []token.Token{
+				{
+					Type:    token.IFB,
+					Literal: "IFB",
+				},
+			},
+		},
+		{
+			name:  "ENDIF",
+			input: `ENDIF`,
+			expected: []token.Token{
+				{
+					Type:    token.ENDIF,
+					Literal: "ENDIF",
+				},
+			},
+		},
+		{
+			name:  "THEN",
+			input: `THEN`,
+			expected: []token.Token{
+				{
+					Type:    token.THEN,
+					Literal: "THEN",
+				},
+			},
+		},
 	}
+
+	testToken(t, tests)
 }
