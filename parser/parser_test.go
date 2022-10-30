@@ -565,7 +565,7 @@ func TestIfStatement(t *testing.T) {
 func TestIfbStatement(t *testing.T) {
 	input := `IFB x < y THEN
 	y
-ELSEIF x < z
+ELSEIF x < z THEN
 	z
 ELSE
 	x
@@ -598,34 +598,46 @@ ENDIF`
 		t.Fatalf("stmt.Consequence.Statements[0] is not ast.ExpressionStatement. got=%T", stmt.Consequence)
 	}
 
-	if !testIdentifier(t, consequence.Expression, "x") {
+	if !testIdentifier(t, consequence.Expression, "y") {
 		return
 	}
 
-	alternative, ok := stmt.Alternative.(*ast.IfStatement)
+	alternative, ok := stmt.Alternative.(*ast.IfbStatement)
 	if !ok {
-		t.Fatalf("stmt.Alternative is not ast.IfStatement. got=%T", stmt.Alternative)
+		t.Fatalf("stmt.Alternative is not ast.IfbStatement. got=%T", stmt.Alternative)
 	}
 
 	if !testInfixExpression(t, alternative.Condition, "x", "<", "z") {
 		return
 	}
 
-	consequence, ok = alternative.Consequence.(*ast.ExpressionStatement)
-	if !ok {
-		t.Fatalf("alternative.Consequence is not ast.ExpressionStatement. got=%T", alternative.Consequence)
+	if len(alternative.Consequence.Statements) != 1 {
+		t.Fatalf("alternative.Consequence.Statements is not 1 statement. got=%d\n", len(alternative.Consequence.Statements))
 	}
 
-	if !testIdentifier(t, consequence.Expression, "z") {
+	alcons, ok := alternative.Consequence.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("alternative.Consequence.Statements[0] is not ast.ExpressionStatement. got=%T", alternative.Consequence)
+	}
+
+	if !testIdentifier(t, alcons.Expression, "z") {
 		return
 	}
 
-	el, ok := alternative.Alternative.(*ast.ExpressionStatement)
+	el, ok := alternative.Alternative.(*ast.BlockStatement)
 	if !ok {
-		t.Fatalf("alternative.Alternative is not ast.ExpressionStatement. got=%T", alternative.Alternative)
+		t.Fatalf("alternative.Alternative is not ast.BlockStatement. got=%T", alternative.Alternative)
 	}
 
-	if !testIdentifier(t, el.Expression, "x") {
+	if len(el.Statements) != 1 {
+		t.Fatalf("el.Statements is not 1 statement. got=%d\n", len(el.Statements))
+	}
+
+	st := el.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("el.Statements[0] is not ast.ExpressionStatement. got=%T", el.Statements[0])
+	}
+	if !testIdentifier(t, st.Expression, "x") {
 		return
 	}
 }
