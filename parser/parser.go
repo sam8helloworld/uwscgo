@@ -301,7 +301,8 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	p.nextToken()
 	expression.Consequence = p.parseStatement()
 
-	if p.expectPeek(token.ELSE) {
+	if p.peekTokenIs(token.ELSE) {
+		p.nextToken()
 		p.nextToken()
 
 		expression.Alternative = p.parseStatement()
