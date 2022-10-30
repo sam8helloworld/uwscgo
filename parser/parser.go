@@ -121,6 +121,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseDimStatement()
 	case token.IF:
 		return p.parseIfStatement()
+	case token.IFB:
+		return p.parseIfbStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -288,45 +290,89 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 }
 
 func (p *Parser) parseIfStatement() ast.Statement {
-	expression := &ast.IfStatement{
+	stmt := &ast.IfStatement{
 		Token: p.curToken,
 	}
 
 	p.nextToken()
-	expression.Condition = p.parseExpression(LOWEST)
+	stmt.Condition = p.parseExpression(LOWEST)
 
 	if !p.expectPeek(token.THEN) {
 		return nil
 	}
 
 	p.nextToken()
-	expression.Consequence = p.parseStatement()
+	stmt.Consequence = p.parseStatement()
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
 		p.nextToken()
 
-		expression.Alternative = p.parseStatement()
+		stmt.Alternative = p.parseStatement()
 	}
 
-	return expression
+	return stmt
 }
 
-// TODO: IF文のブロック対応
-// func (p *Parser) parseBlockStatement() *ast.BlockStatement {
-// 	block := &ast.BlockStatement{
-// 		Token: p.curToken,
-// 	}
-// 	block.Statements = []ast.Statement{}
+func (p *Parser) parseIfbStatement() ast.Statement {
+	stmt := &ast.IfbStatement{
+		Token: p.curToken,
+	}
 
-// 	p.nextToken()
+	p.nextToken()
+	stmt.Condition = p.parseExpression(LOWEST)
 
-// 	for !p.curTokenIs(token.EOL) && !p.curTokenIs(token.EOF) {
-// 		stmt := p.parseStatement()
-// 		if stmt != nil {
-// 			block.Statements = append(block.Statements, stmt)
-// 		}
-// 		p.nextToken()
-// 	}
-// 	return block
-// }
+	// MEMO: IFBはTHENを省略可能
+	if p.expectPeek(token.THEN) {
+		p.nextToken()
+	}
+
+	stmt.Consequence = p.parseBlockStatement()
+	if p.curTokenIs(token.ELSE) {
+		p.nextToken()
+		stmt.Alternative = p.parseBlockStatement()
+	}
+
+	if p.curTokenIs(token.ELSEIF) {
+		stmt.Alternative = p.parseIfbStatement()
+	}
+
+	if !p.curTokenIs(token.ENDIF) {
+		return nil
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	block := &ast.BlockStatement{
+		Token: p.curToken,
+	}
+	block.Statements = []ast.Statement{}
+
+	p.nextToken()
+
+	for !blockEndTokenIs(p.curToken.Type) && !p.curTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
+		p.nextToken()
+	}
+	return block
+}
+
+func blockEndTokenIs(t token.TokenType) bool {
+	ts := []token.TokenType{
+		token.ELSE,
+		token.ELSEIF,
+		token.ENDIF,
+	}
+
+	for _, tt := range ts {
+		if tt == t {
+			return true
+		}
+	}
+	return false
+}
