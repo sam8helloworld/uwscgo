@@ -63,7 +63,6 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.TRUE, p.parseBoolean)
 	p.registerPrefix(token.FALSE, p.parseBoolean)
 	p.registerPrefix(token.LEFT_PARENTHESIS, p.parseGroupedExpression)
-	p.registerPrefix(token.IF, p.parseIfExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.EQUAL_OR_ASSIGN, p.parseInfixExpression)
@@ -120,6 +119,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.DIM:
 		return p.parseDimStatement()
+	case token.IF:
+		return p.parseIfStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -286,8 +287,8 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	return exp
 }
 
-func (p *Parser) parseIfExpression() ast.Expression {
-	expression := &ast.IfExpression{
+func (p *Parser) parseIfStatement() ast.Statement {
+	expression := &ast.IfStatement{
 		Token: p.curToken,
 	}
 

@@ -33,7 +33,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
-	case *ast.IfExpression:
+	case *ast.IfStatement:
 		return evalIfExpression(node, env)
 	}
 	return nil
@@ -133,7 +133,7 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 	return FALSE
 }
 
-func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Object {
+func evalIfExpression(ie *ast.IfStatement, env *object.Environment) object.Object {
 	condition := Eval(ie.Condition, env)
 	if isTruthy(condition) {
 		return Eval(ie.Consequence, env)

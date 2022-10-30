@@ -179,31 +179,31 @@ func (b *Boolean) String() string {
 	return b.Token.Literal
 }
 
-type IfExpression struct {
+type IfStatement struct {
 	Token       token.Token // 'if'トークン
 	Condition   Expression
 	Consequence Statement
 	Alternative Statement
 }
 
-func (ie *IfExpression) expressionNode() {}
-func (ie *IfExpression) TokenLiteral() string {
-	return ie.Token.Literal
+func (is *IfStatement) statementNode() {}
+func (is *IfStatement) TokenLiteral() string {
+	return is.Token.Literal
 }
-func (ie *IfExpression) String() string {
+func (is *IfStatement) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("IF")
-	out.WriteString(ie.Condition.String())
+	out.WriteString(is.Condition.String())
 	out.WriteString(" ")
 	out.WriteString("THEN")
 	out.WriteString(" ")
-	out.WriteString(ie.Consequence.String())
+	out.WriteString(is.Consequence.String())
 
-	if ie.Alternative != nil {
+	if is.Alternative != nil {
 		out.WriteString("ELSE")
 		out.WriteString(" ")
-		out.WriteString(ie.Alternative.String())
+		out.WriteString(is.Alternative.String())
 	}
 
 	return out.String()

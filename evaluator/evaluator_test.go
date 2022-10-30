@@ -240,7 +240,7 @@ func testBoolenObject(t *testing.T, obj object.Object, expected bool) bool {
 	return true
 }
 
-func TestIfElseExpression(t *testing.T) {
+func TestIfElseStatements(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
