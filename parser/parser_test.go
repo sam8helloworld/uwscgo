@@ -696,3 +696,41 @@ ENDIF`
 		return
 	}
 }
+
+func TestFunctionParsing(t *testing.T) {
+	input := `FUNCTION fn(x, y)
+	x + y
+FEND`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
+	}
+
+	function, ok := program.Statements[0].(*ast.FunctionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.FunctionStatement. got=%T", program.Statements[0])
+	}
+
+	if len(function.Parameters) != 2 {
+		t.Fatalf("function parameters wrong. want=%d, got=%d\n", 2, len(function.Parameters))
+	}
+
+	testLiteralExpression(t, function.Parameters[0], "x")
+	testLiteralExpression(t, function.Parameters[1], "y")
+
+	if len(function.Body.Statements) != 1 {
+		t.Fatalf("unction.Body.Statements does not contain %d statements. got=%d\n", 1, len(function.Body.Statements))
+	}
+
+	bodyStmt, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("function.Body.Statements[0] is not ast.ExpressionStatement. got=%T", function.Body.Statements[0])
+	}
+
+	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
+}
