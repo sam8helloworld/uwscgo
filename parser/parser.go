@@ -327,8 +327,22 @@ func (p *Parser) parseIfbStatement() ast.Statement {
 		p.nextToken()
 	}
 
+	if !p.curTokenIs(token.EOL) {
+		return nil
+	}
+
+	p.nextToken()
+
 	stmt.Consequence = p.parseBlockStatement()
+
+	if p.curTokenIs(token.ENDIF) {
+		return stmt
+	}
+
 	if p.curTokenIs(token.ELSE) {
+		if !p.expectPeek(token.EOL) {
+			return nil
+		}
 		p.nextToken()
 		stmt.Alternative = p.parseBlockStatement()
 	}
@@ -345,12 +359,8 @@ func (p *Parser) parseIfbStatement() ast.Statement {
 }
 
 func (p *Parser) parseBlockStatement() *ast.BlockStatement {
-	block := &ast.BlockStatement{
-		Token: p.curToken,
-	}
+	block := &ast.BlockStatement{}
 	block.Statements = []ast.Statement{}
-
-	p.nextToken()
 
 	for !blockEndTokenIs(p.curToken.Type) && !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
