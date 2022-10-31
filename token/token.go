@@ -11,10 +11,10 @@ const (
 	EOF     = "EOF"
 	EOL     = "EOL"
 
-	// PROCEDURE = "PROCEDURE"
-	// FUNCTION  = "FUNCTION"
-	// RESULT    = "RESULT"
-	// FEND      = "FEND"
+	PROCEDURE = "PROCEDURE"
+	FUNCTION  = "FUNCTION"
+	RESULT    = "RESULT"
+	FEND      = "FEND"
 
 	// PRINT = "PRINT"
 
@@ -77,17 +77,21 @@ const (
 )
 
 var reservedWords = map[string]TokenType{
-	"DIM":    DIM,
-	"PUBLIC": PUBLIC,
-	"TRUE":   TRUE,
-	"FALSE":  FALSE,
-	"MOD":    MOD,
-	"IF":     IF,
-	"ELSEIF": ELSEIF,
-	"ELSE":   ELSE,
-	"IFB":    IFB,
-	"ENDIF":  ENDIF,
-	"THEN":   THEN,
+	"DIM":       DIM,
+	"PUBLIC":    PUBLIC,
+	"TRUE":      TRUE,
+	"FALSE":     FALSE,
+	"MOD":       MOD,
+	"IF":        IF,
+	"ELSEIF":    ELSEIF,
+	"ELSE":      ELSE,
+	"IFB":       IFB,
+	"ENDIF":     ENDIF,
+	"THEN":      THEN,
+	"FUNCTION":  FUNCTION,
+	"FEND":      FEND,
+	"PROCEDURE": PROCEDURE,
+	"RESULT":    RESULT,
 }
 
 func LookupIdent(ident string) TokenType {
