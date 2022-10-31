@@ -418,6 +418,11 @@ func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
 		return nil
 	}
 
+	stmt.Name = &ast.Identifier{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
 	if !p.expectPeek(token.LEFT_PARENTHESIS) {
 		return nil
 	}
