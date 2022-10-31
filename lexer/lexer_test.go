@@ -390,6 +390,16 @@ func TestNextToken_関数(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "RESULT",
+			input: `RESULT`,
+			expected: []token.Token{
+				{
+					Type:    token.RESULT,
+					Literal: "RESULT",
+				},
+			},
+		},
 	}
 
 	testToken(t, tests)
