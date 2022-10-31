@@ -734,3 +734,49 @@ FEND`
 
 	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
 }
+
+func TestFunctionParameterparsing(t *testing.T) {
+	tests := []struct {
+		name           string
+		input          string
+		expectedParams []string
+	}{
+		{
+			"引数なし",
+			`FUNCTION fn()
+			FEND`,
+			[]string{},
+		},
+		{
+			"引数が1つ",
+			`FUNCTION fn(x)
+			FEND`,
+			[]string{"x"},
+		},
+		{
+			"引数が3つ",
+			`FUNCTION fn(x, y, z)
+			FEND`,
+			[]string{"x", "y", "z"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.NewLexer(tt.input)
+			p := parser.NewParser(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			funcStmt := program.Statements[0].(*ast.FunctionStatement)
+
+			if len(funcStmt.Parameters) != len(tt.expectedParams) {
+				t.Errorf("length parameters wrong. want=%d, got=%d", len(tt.expectedParams), len(funcStmt.Parameters))
+			}
+
+			for i, ident := range tt.expectedParams {
+				testLiteralExpression(t, funcStmt.Parameters[i], ident)
+			}
+		})
+	}
+}
