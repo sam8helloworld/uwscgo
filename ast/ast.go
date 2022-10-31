@@ -299,18 +299,44 @@ type AssignmentExpression struct {
 	Value      Expression
 }
 
-func (as *AssignmentExpression) expressionNode() {}
-func (as *AssignmentExpression) TokenLiteral() string {
-	return as.Token.Literal
+func (ae *AssignmentExpression) expressionNode() {}
+func (ae *AssignmentExpression) TokenLiteral() string {
+	return ae.Token.Literal
 }
-func (as *AssignmentExpression) String() string {
+func (ae *AssignmentExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(as.Token.Literal)
+	out.WriteString(ae.Token.Literal)
 	out.WriteString(" ")
 	out.WriteString("=")
 	out.WriteString(" ")
-	out.WriteString(as.Value.String())
+	out.WriteString(ae.Value.String())
+
+	return out.String()
+}
+
+type CallExpression struct {
+	Token     token.Token // '('トークン
+	Function  Expression  // Identifier
+	Arguments []Expression
+}
+
+func (ce *CallExpression) expressionNode() {}
+func (ce *CallExpression) TokenLiteral() string {
+	return ce.Token.Literal
+}
+func (ce *CallExpression) String() string {
+	var out bytes.Buffer
+
+	args := []string{}
+	for _, a := range ce.Arguments {
+		args = append(args, a.String())
+	}
+
+	out.WriteString(ce.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
 
 	return out.String()
 }
