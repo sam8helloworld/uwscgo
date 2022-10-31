@@ -8,6 +8,7 @@ import (
 	"github.com/sam8helloworld/uwscgo/ast"
 	"github.com/sam8helloworld/uwscgo/lexer"
 	"github.com/sam8helloworld/uwscgo/parser"
+	"github.com/sam8helloworld/uwscgo/token"
 )
 
 func TestDimStatements(t *testing.T) {
@@ -113,6 +114,55 @@ func TestIdentifierExpression(t *testing.T) {
 	}
 	if ident.TokenLiteral() != "val" {
 		t.Errorf("ident.TokenLiteral() not %s. got=%s", "val", ident.TokenLiteral())
+	}
+}
+
+func TestAssignExpression(t *testing.T) {
+	input := `DIM val = 0
+val = 10`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	// TODO: 1文目
+	dimStmt := program.Statements[0]
+	if !testDimStatement(t, dimStmt, "val") {
+		return
+	}
+
+	val := dimStmt.(*ast.DimStatement).Value
+	if !testLiteralExpression(t, val, 0) {
+		return
+	}
+	// TODO: 2文目
+	exStmt, ok := program.Statements[1].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[1] is not ast.ExpressionStatement. got=%T", exStmt)
+	}
+
+	assExp, ok := exStmt.Expression.(*ast.AssignmentExpression)
+	if !ok {
+		t.Fatalf("assExp is not ast.AssignmentExpression. got=%T", assExp)
+	}
+	if assExp.Identifier.TokenLiteral() != "val" {
+		t.Errorf("assStmt.Identifier.TokenLiteral() not '%s'. got=%s", "val", assExp.Identifier.TokenLiteral())
+	}
+
+	value := &ast.IntegerLiteral{
+		Token: token.Token{
+			Type:    token.INT,
+			Literal: "10",
+		},
+		Value: int64(10),
+	}
+	if assExp.Value != value {
+		t.Errorf("assExp.Value not %d. got=%q", 10, assExp.Value)
 	}
 }
 
