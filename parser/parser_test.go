@@ -161,8 +161,13 @@ val = 10`
 		},
 		Value: int64(10),
 	}
-	if assExp.Value != value {
-		t.Errorf("assExp.Value not %d. got=%q", 10, assExp.Value)
+
+	rightVal, ok := assExp.Value.(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("assExp.Value is not ast.IntegerLiteral. got=%T", rightVal)
+	}
+	if rightVal.Value != value.Value {
+		t.Errorf("rightVal.Value not %d. got=%q", value.Value, rightVal.Value)
 	}
 }
 
