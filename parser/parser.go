@@ -73,7 +73,6 @@ func NewParser(l *lexer.Lexer) *Parser {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
-
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
@@ -186,7 +185,8 @@ func (p *Parser) parseExpression(precedure int, isStartOfLine bool) ast.Expressi
 	case token.IDENT:
 		leftExp = p.parseIdentifier()
 		if isStartOfLine {
-			if exp := p.parseAssignExpression(leftExp); exp != nil {
+			leftIdent := leftExp.(*ast.Identifier)
+			if exp := p.parseAssignExpression(leftIdent); exp != nil {
 				return exp
 			}
 		}
@@ -214,7 +214,7 @@ func (p *Parser) parseExpression(precedure int, isStartOfLine bool) ast.Expressi
 	return leftExp
 }
 
-func (p *Parser) parseAssignExpression(left ast.Expression) *ast.AssignmentExpression {
+func (p *Parser) parseAssignExpression(left *ast.Identifier) *ast.AssignmentExpression {
 	tok := p.curToken
 	switch p.peekToken.Type {
 	case token.EQUAL_OR_ASSIGN:

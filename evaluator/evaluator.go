@@ -40,7 +40,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.BlockStatement:
 		return evalStatements(node.Statements, env)
 	case *ast.AssignmentExpression:
-		return evalAssignExpression(node, env)
+		name := node.Identifier.Value
+		val := Eval(node.Value, env)
+		return evalAssignExpression(name, val, env)
 	}
 	return nil
 }
@@ -176,9 +178,7 @@ func isTruthy(obj object.Object) bool {
 	return true
 }
 
-func evalAssignExpression(ae *ast.AssignmentExpression, env *object.Environment) object.Object {
-	val := Eval(ae.Value, env)
-	name := ae.Identifier.String()
+func evalAssignExpression(name string, val object.Object, env *object.Environment) object.Object {
 	env.Set(name, val)
 	return val
 }

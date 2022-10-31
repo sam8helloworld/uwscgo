@@ -260,7 +260,7 @@ func (bs *BlockStatement) String() string {
 
 type AssignmentExpression struct {
 	Token      token.Token
-	Identifier Expression
+	Identifier *Identifier
 	Value      Expression
 }
 
