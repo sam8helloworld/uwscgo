@@ -257,3 +257,25 @@ func (bs *BlockStatement) String() string {
 	}
 	return out.String()
 }
+
+type AssignmentExpression struct {
+	Token      token.Token
+	Identifier *Identifier
+	Value      Expression
+}
+
+func (as *AssignmentExpression) expressionNode() {}
+func (as *AssignmentExpression) TokenLiteral() string {
+	return as.Token.Literal
+}
+func (as *AssignmentExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(as.Token.Literal)
+	out.WriteString(" ")
+	out.WriteString("=")
+	out.WriteString(" ")
+	out.WriteString(as.Value.String())
+
+	return out.String()
+}

@@ -248,68 +248,80 @@ func TestIfElseStatements(t *testing.T) {
 	}{
 		{
 			"条件式がTRUEの真偽値の場合THENの後の式を処理する",
-			`IF TRUE THEN 10`,
+			`DIM val = 0
+IF TRUE THEN val = 10
+val`,
 			10,
 		},
 		{
 			"条件式がFALSEの真偽値の場合THENの後の式を処理しない",
-			"IF FALSE THEN 10",
-			nil,
+			`DIM val = 0
+IF FALSE THEN val = 10
+val`,
+			0,
 		},
 		{
 			"条件式が0の場合THENの後の式を処理しない",
-			"IF 0 THEN 10",
-			nil,
+			`DIM val = 0
+IF 0 THEN val = 10
+val`,
+			0,
 		},
 		{
 			"条件式が0以外の場合THENの後の式を処理する",
-			"IF 1 THEN 10",
+			`DIM val = 0
+IF 1 THEN val = 10
+val`,
 			10,
 		},
 		{
 			"条件式の評価がTRUEになる場合THENの後の式を処理する",
-			"IF 1 < 2 THEN 10 ELSE 20",
+			`DIM val = 0
+IF 1 < 2 THEN val = 10 ELSE val = 20
+val`,
 			10,
 		},
 		{
 			"条件式の評価がFALSEになる場合ELSEの後の式を処理する",
-			"IF 1 > 2 THEN 10 ELSE 20",
+			`DIM val = 0
+IF 1 > 2 THEN val = 10 ELSE val = 20
+val`,
 			20,
 		},
 		{
 			"IFBの条件式の評価がTRUEになる場合THENの後の式を処理する",
 			`IFB 1 < 2 THEN
-	DIM val = 10
-ELSE
-	DIM val = 20
-ENDIF
-	val
-			`,
+			DIM val = 10
+		ELSE
+			DIM val = 20
+		ENDIF
+			val
+					`,
 			10,
 		},
 		{
 			"IFBの条件式の評価がFALSEになり、ELSEIFの条件式の評価がTRUEになる場合ELSEIFのTHENの後の式を処理する",
 			`IFB 1 > 2 THEN
-	DIM val = 10
-ELSEIF 1 < 2 THEN
-	DIM val = 20
-ELSE
-	DIM val = 30
-ENDIF
-val
-`,
+			DIM val = 10
+		ELSEIF 1 < 2 THEN
+			DIM val = 20
+		ELSE
+			DIM val = 30
+		ENDIF
+		val
+		`,
 			20,
 		},
 		{
 			"IFBの条件式の評価もELSEIFの条件式の評価もFALSEになる場合ELSEの後の式を処理する",
 			`IFB 1 > 2 THEN
-	DIM val = 10
-ELSEIF 1 > 2 THEN
-	DIM val = 20
-ELSE
-DIM val = 30
-ENDIF
-val`,
+			DIM val = 10
+		ELSEIF 1 > 2 THEN
+			DIM val = 20
+		ELSE
+		DIM val = 30
+		ENDIF
+		val`,
 			30,
 		},
 	}
