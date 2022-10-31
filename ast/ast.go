@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/sam8helloworld/uwscgo/token"
 )
@@ -168,6 +169,37 @@ func (bs *BlockStatement) String() string {
 	for _, s := range bs.Statements {
 		out.WriteString(s.String())
 	}
+	return out.String()
+}
+
+type FunctionStatement struct {
+	Token      token.Token
+	name       *Identifier
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fs *FunctionStatement) statementNode() {}
+func (fs *FunctionStatement) TokenLiteral() string {
+	return fs.Token.Literal
+}
+func (fs *FunctionStatement) String() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	for _, p := range fs.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString(fs.TokenLiteral())
+	out.WriteString(" ")
+	out.WriteString(fs.name.Value)
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(")")
+	out.WriteString(" ")
+	out.WriteString(fs.Body.String())
+
 	return out.String()
 }
 
