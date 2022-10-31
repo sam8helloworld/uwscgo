@@ -39,6 +39,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIfbStatement(node, env)
 	case *ast.BlockStatement:
 		return evalStatements(node.Statements, env)
+	case *ast.AssignmentExpression:
+		return evalAssignExpression(node, env)
 	}
 	return nil
 }
@@ -172,4 +174,11 @@ func isTruthy(obj object.Object) bool {
 		}
 	}
 	return true
+}
+
+func evalAssignExpression(ae *ast.AssignmentExpression, env *object.Environment) object.Object {
+	val := Eval(ae.Value, env)
+	name := ae.Identifier.String()
+	env.Set(name, val)
+	return val
 }
