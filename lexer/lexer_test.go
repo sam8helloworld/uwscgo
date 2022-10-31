@@ -357,3 +357,40 @@ func TestNextToken_条件分岐(t *testing.T) {
 
 	testToken(t, tests)
 }
+
+func TestNextToken_関数(t *testing.T) {
+	tests := []Args{
+		{
+			name:  "FUNCTION",
+			input: `FUNCTION`,
+			expected: []token.Token{
+				{
+					Type:    token.FUNCTION,
+					Literal: "FUNCTION",
+				},
+			},
+		},
+		{
+			name:  "FEND",
+			input: `FEND`,
+			expected: []token.Token{
+				{
+					Type:    token.FEND,
+					Literal: "FEND",
+				},
+			},
+		},
+		{
+			name:  "PROCEDURE",
+			input: `PROCEDURE`,
+			expected: []token.Token{
+				{
+					Type:    token.PROCEDURE,
+					Literal: "PROCEDURE",
+				},
+			},
+		},
+	}
+
+	testToken(t, tests)
+}
