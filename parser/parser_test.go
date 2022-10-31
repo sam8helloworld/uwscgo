@@ -541,6 +541,21 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"!(TRUE = TRUE)",
 			"(!(TRUE = TRUE))",
 		},
+		{
+			"関数を使ったグルーピングのパターン01",
+			"a + fn(b * c) + d",
+			"((a + fn((b * c))) + d)",
+		},
+		{
+			"関数を使ったグルーピングのパターン02",
+			"fn(a, b, 1, 2 * 3, 4 + 5, fnc(6, 7 * 8))",
+			"fn(a, b, 1, (2 * 3), (4 + 5), fnc(6, (7 * 8)))",
+		},
+		{
+			"関数を使ったグルーピングのパターン03",
+			"fn(a + b + c * d / f + g)",
+			"fn((((a + b) + ((c * d) / f)) + g))",
+		},
 	}
 
 	for _, tt := range tests {
