@@ -32,6 +32,7 @@ var precedences = map[token.TokenType]int{
 	token.SLASH:                 PRODUCT,
 	token.ASTERISK:              PRODUCT,
 	token.MOD:                   PRODUCT,
+	token.LEFT_PARENTHESIS:      CALL,
 }
 
 type (
@@ -65,6 +66,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.SLASH, p.parseInfixExpression)
 	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
 	p.registerInfix(token.MOD, p.parseInfixExpression)
+	p.registerInfix(token.LEFT_PARENTHESIS, p.parseCallExpression)
 
 	// 2つのトークンを読み込むことでcurTokenとpeekTokenがセットされる
 	p.nextToken()
@@ -112,6 +114,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseIfStatement()
 	case token.IFB:
 		return p.parseIfbStatement()
+	case token.FUNCTION:
+		return p.parseFunctionStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -394,6 +398,7 @@ func blockEndTokenIs(t token.TokenType) bool {
 		token.ELSE,
 		token.ELSEIF,
 		token.ENDIF,
+		token.FEND,
 	}
 
 	for _, tt := range ts {
@@ -402,4 +407,99 @@ func blockEndTokenIs(t token.TokenType) bool {
 		}
 	}
 	return false
+}
+
+func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
+	stmt := &ast.FunctionStatement{
+		Token: p.curToken,
+	}
+
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+
+	stmt.Name = &ast.Identifier{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
+	if !p.expectPeek(token.LEFT_PARENTHESIS) {
+		return nil
+	}
+
+	stmt.Parameters = p.parseFunctionParameters()
+
+	if p.expectPeek(token.EOL) {
+		p.nextToken()
+	}
+
+	stmt.Body = p.parseBlockStatement()
+
+	return stmt
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.Identifier {
+	identifiers := []*ast.Identifier{}
+
+	if p.peekTokenIs(token.RIGHT_PARENTHESIS) {
+		p.nextToken()
+		return identifiers
+	}
+
+	p.nextToken()
+
+	ident := &ast.Identifier{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+	identifiers = append(identifiers, ident)
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		ident := &ast.Identifier{
+			Token: p.curToken,
+			Value: p.curToken.Literal,
+		}
+		identifiers = append(identifiers, ident)
+	}
+
+	if !p.expectPeek(token.RIGHT_PARENTHESIS) {
+		return nil
+	}
+
+	return identifiers
+}
+
+func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{
+		Token:    p.curToken,
+		Function: function,
+	}
+	exp.Arguments = p.parseCallArguments()
+	return exp
+}
+
+func (p *Parser) parseCallArguments() []ast.Expression {
+	args := []ast.Expression{}
+
+	if p.peekTokenIs(token.RIGHT_PARENTHESIS) {
+		p.nextToken()
+		return args
+	}
+
+	p.nextToken()
+
+	args = append(args, p.parseExpression(LOWEST, false))
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		args = append(args, p.parseExpression(LOWEST, false))
+	}
+
+	if !p.expectPeek(token.RIGHT_PARENTHESIS) {
+		return nil
+	}
+	return args
 }

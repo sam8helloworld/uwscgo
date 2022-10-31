@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/sam8helloworld/uwscgo/token"
 )
@@ -22,6 +23,7 @@ type Expression interface {
 	expressionNode()
 }
 
+/////////////// Root
 type Program struct {
 	Statements []Statement
 }
@@ -44,6 +46,7 @@ func (p *Program) String() string {
 	return out.String()
 }
 
+/////////////// Statement
 type DimStatement struct {
 	Token token.Token
 	Name  *Identifier
@@ -70,21 +73,6 @@ func (ds *DimStatement) String() string {
 	return out.String()
 }
 
-type Identifier struct {
-	Token token.Token // token.IDENT
-	Value string
-}
-
-func (i *Identifier) expressionNode() {}
-
-func (i *Identifier) TokenLiteral() string {
-	return i.Token.Literal
-}
-
-func (i *Identifier) String() string {
-	return i.Value
-}
-
 type ExpressionStatement struct {
 	Token token.Token // 式の最初のトークン
 	Expression
@@ -103,80 +91,6 @@ func (es *ExpressionStatement) String() string {
 		return es.Expression.String()
 	}
 	return ""
-}
-
-type IntegerLiteral struct {
-	Token token.Token
-	Value int64
-}
-
-func (il *IntegerLiteral) expressionNode() {
-
-}
-
-func (il *IntegerLiteral) TokenLiteral() string {
-	return il.Token.Literal
-}
-
-func (il *IntegerLiteral) String() string {
-	return il.Token.Literal
-}
-
-type PrefixExpression struct {
-	Token    token.Token // 前置トークン 、「!」など
-	Operator string
-	Right    Expression
-}
-
-func (pe *PrefixExpression) expressionNode() {}
-func (pe *PrefixExpression) TokenLiteral() string {
-	return pe.Token.Literal
-}
-func (pe *PrefixExpression) String() string {
-	var out bytes.Buffer
-
-	out.WriteString("(")
-	out.WriteString(pe.Operator)
-	out.WriteString(pe.Right.String())
-	out.WriteString(")")
-
-	return out.String()
-}
-
-type InfixExpression struct {
-	Token    token.Token // 演算子トークン 、「+」など
-	Left     Expression
-	Operator string
-	Right    Expression
-}
-
-func (ie *InfixExpression) expressionNode() {}
-func (ie *InfixExpression) TokenLiteral() string {
-	return ie.Token.Literal
-}
-func (ie *InfixExpression) String() string {
-	var out bytes.Buffer
-
-	out.WriteString("(")
-	out.WriteString(ie.Left.String())
-	out.WriteString(" " + ie.Operator + " ")
-	out.WriteString(ie.Right.String())
-	out.WriteString(")")
-
-	return out.String()
-}
-
-type Boolean struct {
-	Token token.Token
-	Value bool
-}
-
-func (b *Boolean) expressionNode() {}
-func (b *Boolean) TokenLiteral() string {
-	return b.Token.Literal
-}
-func (b *Boolean) String() string {
-	return b.Token.Literal
 }
 
 type IfStatement struct {
@@ -258,24 +172,171 @@ func (bs *BlockStatement) String() string {
 	return out.String()
 }
 
+type FunctionStatement struct {
+	Token      token.Token
+	Name       *Identifier
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+func (fs *FunctionStatement) statementNode() {}
+func (fs *FunctionStatement) TokenLiteral() string {
+	return fs.Token.Literal
+}
+func (fs *FunctionStatement) String() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	for _, p := range fs.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString(fs.TokenLiteral())
+	out.WriteString(" ")
+	out.WriteString(fs.Name.Value)
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(")")
+	out.WriteString(" ")
+	out.WriteString(fs.Body.String())
+
+	return out.String()
+}
+
+/////////////// Expression
+type Identifier struct {
+	Token token.Token // token.IDENT
+	Value string
+}
+
+func (i *Identifier) expressionNode() {}
+
+func (i *Identifier) TokenLiteral() string {
+	return i.Token.Literal
+}
+
+func (i *Identifier) String() string {
+	return i.Value
+}
+
+type IntegerLiteral struct {
+	Token token.Token
+	Value int64
+}
+
+func (il *IntegerLiteral) expressionNode() {
+
+}
+
+func (il *IntegerLiteral) TokenLiteral() string {
+	return il.Token.Literal
+}
+
+func (il *IntegerLiteral) String() string {
+	return il.Token.Literal
+}
+
+type PrefixExpression struct {
+	Token    token.Token // 前置トークン 、「!」など
+	Operator string
+	Right    Expression
+}
+
+func (pe *PrefixExpression) expressionNode() {}
+func (pe *PrefixExpression) TokenLiteral() string {
+	return pe.Token.Literal
+}
+func (pe *PrefixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
+type InfixExpression struct {
+	Token    token.Token // 演算子トークン 、「+」など
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+func (ie *InfixExpression) expressionNode() {}
+func (ie *InfixExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+func (ie *InfixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString(" " + ie.Operator + " ")
+	out.WriteString(ie.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
+func (b *Boolean) expressionNode() {}
+func (b *Boolean) TokenLiteral() string {
+	return b.Token.Literal
+}
+func (b *Boolean) String() string {
+	return b.Token.Literal
+}
+
 type AssignmentExpression struct {
 	Token      token.Token
 	Identifier *Identifier
 	Value      Expression
 }
 
-func (as *AssignmentExpression) expressionNode() {}
-func (as *AssignmentExpression) TokenLiteral() string {
-	return as.Token.Literal
+func (ae *AssignmentExpression) expressionNode() {}
+func (ae *AssignmentExpression) TokenLiteral() string {
+	return ae.Token.Literal
 }
-func (as *AssignmentExpression) String() string {
+func (ae *AssignmentExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(as.Token.Literal)
+	out.WriteString(ae.Token.Literal)
 	out.WriteString(" ")
 	out.WriteString("=")
 	out.WriteString(" ")
-	out.WriteString(as.Value.String())
+	out.WriteString(ae.Value.String())
+
+	return out.String()
+}
+
+type CallExpression struct {
+	Token     token.Token // '('トークン
+	Function  Expression  // Identifier
+	Arguments []Expression
+}
+
+func (ce *CallExpression) expressionNode() {}
+func (ce *CallExpression) TokenLiteral() string {
+	return ce.Token.Literal
+}
+func (ce *CallExpression) String() string {
+	var out bytes.Buffer
+
+	args := []string{}
+	for _, a := range ce.Arguments {
+		args = append(args, a.String())
+	}
+
+	out.WriteString(ce.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
 
 	return out.String()
 }

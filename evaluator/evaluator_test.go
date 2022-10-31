@@ -346,3 +346,18 @@ func testNullObject(t *testing.T, obj object.Object) bool {
 	}
 	return true
 }
+
+func TestFunctionApplication(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected int64
+	}{}
+
+	// TODO: Return文の実装後
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testIntegerObject(t, testEval(tt.input), tt.expected)
+		})
+	}
+}
