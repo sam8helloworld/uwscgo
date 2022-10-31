@@ -248,7 +248,7 @@ func TestIfElseStatements(t *testing.T) {
 	}{
 		{
 			"条件式がTRUEの真偽値の場合THENの後の式を処理する",
-			"IF TRUE THEN 10",
+			`IF TRUE THEN 10`,
 			10,
 		},
 		{
@@ -275,6 +275,42 @@ func TestIfElseStatements(t *testing.T) {
 			"条件式の評価がFALSEになる場合ELSEの後の式を処理する",
 			"IF 1 > 2 THEN 10 ELSE 20",
 			20,
+		},
+		{
+			"IFBの条件式の評価がTRUEになる場合THENの後の式を処理する",
+			`IFB 1 < 2 THEN
+	DIM val = 10
+ELSE
+	DIM val = 20
+ENDIF
+	val
+			`,
+			10,
+		},
+		{
+			"IFBの条件式の評価がFALSEになり、ELSEIFの条件式の評価がTRUEになる場合ELSEIFのTHENの後の式を処理する",
+			`IFB 1 > 2 THEN
+	DIM val = 10
+ELSEIF 1 < 2 THEN
+	DIM val = 20
+ELSE
+	DIM val = 30
+ENDIF
+val
+`,
+			20,
+		},
+		{
+			"IFBの条件式の評価もELSEIFの条件式の評価もFALSEになる場合ELSEの後の式を処理する",
+			`IFB 1 > 2 THEN
+	DIM val = 10
+ELSEIF 1 > 2 THEN
+	DIM val = 20
+ELSE
+DIM val = 30
+ENDIF
+val`,
+			30,
 		},
 	}
 

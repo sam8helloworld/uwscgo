@@ -35,6 +35,10 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.IfStatement:
 		return evalIfExpression(node, env)
+	case *ast.IfbStatement:
+		return evalIfbStatement(node, env)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements, env)
 	}
 	return nil
 }
@@ -139,6 +143,18 @@ func evalIfExpression(ie *ast.IfStatement, env *object.Environment) object.Objec
 		return Eval(ie.Consequence, env)
 	} else if ie.Alternative != nil {
 		return Eval(ie.Alternative, env)
+	} else {
+		return NULL
+	}
+}
+
+// NOTE: evalIfExpressionと処理が共通だが可読性からあえて分けている
+func evalIfbStatement(is *ast.IfbStatement, env *object.Environment) object.Object {
+	condition := Eval(is.Condition, env)
+	if isTruthy(condition) {
+		return Eval(is.Consequence, env)
+	} else if is.Alternative != nil {
+		return Eval(is.Alternative, env)
 	} else {
 		return NULL
 	}

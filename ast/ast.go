@@ -209,12 +209,43 @@ func (is *IfStatement) String() string {
 	return out.String()
 }
 
+type IfbStatement struct {
+	Token       token.Token // 'if'トークン
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative Statement // *IfStatement(ELSEIF) or *BlockStatement(ELSE) or nil
+}
+
+func (is *IfbStatement) statementNode() {}
+func (is *IfbStatement) TokenLiteral() string {
+	return is.Token.Literal
+}
+func (is *IfbStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("IFB")
+	out.WriteString(is.Condition.String())
+	out.WriteString(" ")
+	out.WriteString("THEN")
+	out.WriteString(" ")
+	out.WriteString(is.Consequence.String())
+
+	// TODO: ELSEIFを含めた出力
+	if is.Alternative != nil {
+		out.WriteString("ELSE")
+		out.WriteString(" ")
+		out.WriteString(is.Alternative.String())
+	}
+
+	return out.String()
+}
+
 type BlockStatement struct {
 	Token      token.Token
 	Statements []Statement
 }
 
-func (bs *BlockStatement) expressionNode() {}
+func (bs *BlockStatement) statementNode() {}
 func (bs *BlockStatement) TokenLiteral() string {
 	return bs.Token.Literal
 }
