@@ -43,6 +43,16 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		name := node.Identifier.Value
 		val := Eval(node.Value, env)
 		return evalAssignExpression(name, val, env)
+	case *ast.FunctionStatement:
+		name := node.Name.Value
+		params := node.Parameters
+		body := node.Body
+		function := &object.Function{
+			Name:       name,
+			Parameters: params,
+			Body:       body,
+		}
+		env.Set(name, function)
 	}
 	return nil
 }
