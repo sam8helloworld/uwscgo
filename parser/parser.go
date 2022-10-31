@@ -35,8 +35,7 @@ var precedences = map[token.TokenType]int{
 }
 
 type (
-	prefixParseFn func() ast.Expression
-	infixParseFn  func(ast.Expression) ast.Expression
+	infixParseFn func(ast.Expression) ast.Expression
 )
 
 type Parser struct {
@@ -45,8 +44,7 @@ type Parser struct {
 	curToken  token.Token
 	peekToken token.Token
 
-	prefixParseFns map[token.TokenType]prefixParseFn
-	infixParseFns  map[token.TokenType]infixParseFn
+	infixParseFns map[token.TokenType]infixParseFn
 }
 
 func NewParser(l *lexer.Lexer) *Parser {
@@ -54,15 +52,6 @@ func NewParser(l *lexer.Lexer) *Parser {
 		lexer:  l,
 		errors: []string{},
 	}
-
-	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
-	p.registerPrefix(token.IDENT, p.parseIdentifier)
-	p.registerPrefix(token.INT, p.parseIntegerLiteral)
-	p.registerPrefix(token.BANG, p.parsePrefixExpression)
-	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
-	p.registerPrefix(token.TRUE, p.parseBoolean)
-	p.registerPrefix(token.FALSE, p.parseBoolean)
-	p.registerPrefix(token.LEFT_PARENTHESIS, p.parseGroupedExpression)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.EQUAL_OR_ASSIGN, p.parseInfixExpression)
@@ -84,6 +73,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 }
 
 func (p *Parser) parseIdentifier() ast.Expression {
+
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
@@ -142,7 +132,7 @@ func (p *Parser) parseDimStatement() *ast.DimStatement {
 
 	p.nextToken()
 
-	stmt.Value = p.parseExpression(LOWEST)
+	stmt.Value = p.parseExpression(LOWEST, false)
 
 	if p.peekTokenIs(token.EOL) {
 		p.nextToken()
@@ -153,7 +143,7 @@ func (p *Parser) parseDimStatement() *ast.DimStatement {
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 
-	stmt.Expression = p.parseExpression(LOWEST)
+	stmt.Expression = p.parseExpression(LOWEST, true)
 
 	if p.peekTokenIs(token.EOL) {
 		p.nextToken()
@@ -180,10 +170,6 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 	}
 }
 
-func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
-	p.prefixParseFns[tokenType] = fn
-}
-
 func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
 }
@@ -193,13 +179,26 @@ func (p *Parser) noPrefixParseFnError(t token.TokenType) {
 	p.errors = append(p.errors, msg)
 }
 
-func (p *Parser) parseExpression(precedure int) ast.Expression {
-	prefix := p.prefixParseFns[p.curToken.Type]
-	if prefix == nil {
-		p.noPrefixParseFnError(p.curToken.Type)
-		return nil
+func (p *Parser) parseExpression(precedure int, isStartOfLine bool) ast.Expression {
+	// prefix
+	var leftExp ast.Expression
+	switch p.curToken.Type {
+	case token.IDENT:
+		leftExp = p.parseIdentifier()
+		if isStartOfLine {
+			if exp := p.parseAssignExpression(leftExp); exp != nil {
+				return exp
+			}
+		}
+	case token.INT:
+		leftExp = p.parseIntegerLiteral()
+	case token.BANG, token.MINUS:
+		leftExp = p.parsePrefixExpression()
+	case token.TRUE, token.FALSE:
+		leftExp = p.parseBoolean()
+	case token.LEFT_PARENTHESIS:
+		leftExp = p.parseGroupedExpression()
 	}
-	leftExp := prefix()
 
 	for !p.peekTokenIs(token.EOL) && precedure < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
@@ -213,6 +212,24 @@ func (p *Parser) parseExpression(precedure int) ast.Expression {
 	}
 
 	return leftExp
+}
+
+func (p *Parser) parseAssignExpression(left ast.Expression) *ast.AssignmentExpression {
+	tok := p.curToken
+	switch p.peekToken.Type {
+	case token.EQUAL_OR_ASSIGN:
+		p.nextToken()
+		p.nextToken()
+
+		exp := p.parseExpression(LOWEST, false)
+		return &ast.AssignmentExpression{
+			Token:      tok,
+			Identifier: left,
+			Value:      exp,
+		}
+	default:
+		return nil
+	}
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
@@ -251,7 +268,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 
 	p.nextToken()
 
-	expression.Right = p.parseExpression(PREFIX)
+	expression.Right = p.parseExpression(PREFIX, false)
 
 	return expression
 }
@@ -265,7 +282,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 	precedence := p.curPrecedence()
 	p.nextToken()
-	expression.Right = p.parseExpression(precedence)
+	expression.Right = p.parseExpression(precedence, false)
 
 	return expression
 }
@@ -280,7 +297,7 @@ func (p *Parser) parseBoolean() ast.Expression {
 func (p *Parser) parseGroupedExpression() ast.Expression {
 	p.nextToken()
 
-	exp := p.parseExpression(LOWEST)
+	exp := p.parseExpression(LOWEST, false)
 
 	if !p.expectPeek(token.RIGHT_PARENTHESIS) {
 		return nil
@@ -295,7 +312,7 @@ func (p *Parser) parseIfStatement() ast.Statement {
 	}
 
 	p.nextToken()
-	stmt.Condition = p.parseExpression(LOWEST)
+	stmt.Condition = p.parseExpression(LOWEST, false)
 
 	if !p.expectPeek(token.THEN) {
 		return nil
@@ -320,7 +337,7 @@ func (p *Parser) parseIfbStatement() ast.Statement {
 	}
 
 	p.nextToken()
-	stmt.Condition = p.parseExpression(LOWEST)
+	stmt.Condition = p.parseExpression(LOWEST, false)
 
 	// MEMO: IFBはTHENを省略可能
 	if p.expectPeek(token.THEN) {
