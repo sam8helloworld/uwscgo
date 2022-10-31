@@ -258,14 +258,14 @@ val`,
 			`DIM val = 0
 IF FALSE THEN val = 10
 val`,
-			nil,
+			0,
 		},
 		{
 			"条件式が0の場合THENの後の式を処理しない",
 			`DIM val = 0
 IF 0 THEN val = 10
 val`,
-			nil,
+			0,
 		},
 		{
 			"条件式が0以外の場合THENの後の式を処理する",
