@@ -276,6 +276,21 @@ func TestIfElseStatements(t *testing.T) {
 			"IF 1 > 2 THEN 10 ELSE 20",
 			20,
 		},
+		{
+			"IFBの条件式の評価がTRUEになる場合THENの後の式を処理する",
+			"IFB 1 < 2 THEN 10 ELSE 20 ENDIF",
+			10,
+		},
+		{
+			"IFBの条件式の評価がFALSEになり、ELSEIFの条件式の評価がTRUEになる場合ELSEIFのTHENの後の式を処理する",
+			"IFB 1 > 2 THEN 10 ELSEIF 1 < 2 THEN 20 ELSE 30 ENDIF",
+			20,
+		},
+		{
+			"IFBの条件式の評価もELSEIFの条件式の評価もFALSEになる場合ELSEの後の式を処理する",
+			"IFB 1 > 2 THEN 10 ELSEIF 1 > 2 THEN 20 ELSE 30 ENDIF",
+			30,
+		},
 	}
 
 	for _, tt := range tests {
