@@ -174,7 +174,7 @@ func (bs *BlockStatement) String() string {
 
 type FunctionStatement struct {
 	Token      token.Token
-	name       *Identifier
+	Name       *Identifier
 	Parameters []*Identifier
 	Body       *BlockStatement
 }
@@ -193,7 +193,7 @@ func (fs *FunctionStatement) String() string {
 
 	out.WriteString(fs.TokenLiteral())
 	out.WriteString(" ")
-	out.WriteString(fs.name.Value)
+	out.WriteString(fs.Name.Value)
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(")")
