@@ -122,7 +122,7 @@ func unwrapReturnValue(obj object.Object) object.Object {
 		return resultValue.Value
 	}
 
-	return obj
+	return newError("result value does not exist")
 }
 
 func evalProgram(program *ast.Program, env *object.Environment) object.Object {
