@@ -352,9 +352,25 @@ func TestFunctionApplication(t *testing.T) {
 		name     string
 		input    string
 		expected int64
-	}{}
+	}{
+		{
+			"引数なし",
+			`FUNCTION fn()
+	RESULT = 5
+FEND
+fn()`,
+			5,
+		},
+		{
+			"引数1つ",
+			`FUNCTION fn(x)
+	RESULT = x
+FEND
+fn(5)`,
+			5,
+		},
+	}
 
-	// TODO: Return文の実装後
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testIntegerObject(t, testEval(tt.input), tt.expected)
