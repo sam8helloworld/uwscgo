@@ -74,6 +74,7 @@ type Function struct {
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement
 	Env        *Environment
+	IsProc     bool
 }
 
 func (f *Function) Type() ObjectType {
@@ -88,7 +89,11 @@ func (f *Function) Inspect() string {
 		params = append(params, p.String())
 	}
 
-	out.WriteString("FUNCTION")
+	if f.IsProc {
+		out.WriteString("PROCEDURE")
+	} else {
+		out.WriteString("FUNCTION")
+	}
 	out.WriteString(" ")
 	out.WriteString(f.Name)
 	out.WriteString("(")

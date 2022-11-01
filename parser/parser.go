@@ -115,7 +115,9 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.IFB:
 		return p.parseIfbStatement()
 	case token.FUNCTION:
-		return p.parseFunctionStatement()
+		return p.parseFunctionStatement(false)
+	case token.PROCEDURE:
+		return p.parseFunctionStatement(true)
 	case token.RESULT:
 		return p.parseResultStatement()
 	default:
@@ -411,9 +413,10 @@ func blockEndTokenIs(t token.TokenType) bool {
 	return false
 }
 
-func (p *Parser) parseFunctionStatement() *ast.FunctionStatement {
+func (p *Parser) parseFunctionStatement(isProc bool) *ast.FunctionStatement {
 	stmt := &ast.FunctionStatement{
-		Token: p.curToken,
+		Token:  p.curToken,
+		IsProc: isProc,
 	}
 
 	if !p.expectPeek(token.IDENT) {

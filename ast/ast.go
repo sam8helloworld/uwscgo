@@ -177,6 +177,7 @@ type FunctionStatement struct {
 	Name       *Identifier
 	Parameters []*Identifier
 	Body       *BlockStatement
+	IsProc     bool
 }
 
 func (fs *FunctionStatement) statementNode() {}

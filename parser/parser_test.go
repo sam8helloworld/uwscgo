@@ -750,28 +750,49 @@ FEND`
 	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
 }
 
-func TestFunctionParameterparsing(t *testing.T) {
+func TestFunctionParameterParsing(t *testing.T) {
 	tests := []struct {
 		name           string
 		input          string
 		expectedParams []string
 	}{
 		{
-			"引数なし",
+			"FUNCTION_引数なし",
 			`FUNCTION fn()
-			FEND`,
+	RESULT = TRUE
+FEND`,
 			[]string{},
 		},
 		{
-			"引数が1つ",
+			"FUNCTION_引数が1つ",
 			`FUNCTION fn(x)
-			FEND`,
+	RESULT = TRUE
+FEND`,
 			[]string{"x"},
 		},
 		{
-			"引数が3つ",
+			"FUNCTION_引数が3つ",
 			`FUNCTION fn(x, y, z)
-			FEND`,
+	RESULT = TRUE
+FEND`,
+			[]string{"x", "y", "z"},
+		},
+		{
+			"PROCEDURE_引数なし",
+			`PROCEDURE fn()
+FEND`,
+			[]string{},
+		},
+		{
+			"PROCEDURE_引数が1つ",
+			`PROCEDURE fn(x)
+FEND`,
+			[]string{"x"},
+		},
+		{
+			"PROCEDURE_引数が3つ",
+			`PROCEDURE fn(x, y, z)
+FEND`,
 			[]string{"x", "y", "z"},
 		},
 	}
