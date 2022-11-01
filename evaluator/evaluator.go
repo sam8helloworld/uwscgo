@@ -75,6 +75,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			Parameters: params,
 			Body:       body,
 			Env:        env,
+			IsProc:     node.IsProc,
 		}
 		env.Set(name, function)
 	case *ast.CallExpression:
@@ -100,6 +101,9 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 
 	extendedEnv := extendFunctionEnv(function, args)
 	evaluated := Eval(function.Body, extendedEnv)
+	if function.IsProc {
+		return nil
+	}
 	return unwrapReturnValue(evaluated)
 }
 
@@ -110,8 +114,9 @@ func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Enviro
 		env.Set(param.Value, args[paramIndex])
 	}
 
-	// NOTE: 関数の環境にRESULT変数をセット
-	env.Set("RESULT", NULL)
+	if !fn.IsProc {
+		env.Set("RESULT", NULL)
+	}
 
 	return env
 }
