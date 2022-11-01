@@ -203,6 +203,19 @@ func (fs *FunctionStatement) String() string {
 	return out.String()
 }
 
+type ResultStatement struct {
+	Token       token.Token // 'RESULT'トークン
+	ResultValue Expression
+}
+
+func (rs *ResultStatement) statementNode() {}
+func (rs *ResultStatement) TokenLiteral() string {
+	return rs.Token.Literal
+}
+func (rs *ResultStatement) String() string {
+	return rs.Token.Literal
+}
+
 /////////////// Expression
 type Identifier struct {
 	Token token.Token // token.IDENT
