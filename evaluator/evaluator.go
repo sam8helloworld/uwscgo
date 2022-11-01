@@ -23,7 +23,7 @@ func isError(obj object.Object) bool {
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalStatements(node.Statements, env)
+		return evalProgram(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 	case *ast.IntegerLiteral:
@@ -56,11 +56,16 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IfbStatement:
 		return evalIfbStatement(node, env)
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements, env)
+		return evalBlockStatement(node, env)
 	case *ast.AssignmentExpression:
 		name := node.Identifier.Value
 		val := Eval(node.Value, env)
 		return evalAssignExpression(name, val, env)
+	case *ast.ResultStatement:
+		val := Eval(node.ResultValue, env)
+		return &object.ResultValue{
+			Value: val,
+		}
 	case *ast.FunctionStatement:
 		name := node.Name.Value
 		params := node.Parameters
@@ -69,6 +74,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			Name:       name,
 			Parameters: params,
 			Body:       body,
+			Env:        env,
 		}
 		env.Set(name, function)
 	case *ast.CallExpression:
@@ -80,18 +86,69 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if len(args) == 1 && isError(args[0]) {
 			return args[0]
 		}
+
+		return applyFunction(function, args)
 	}
 	return nil
 }
 
-func evalStatements(stmts []ast.Statement, env *object.Environment) object.Object {
+func applyFunction(fn object.Object, args []object.Object) object.Object {
+	function, ok := fn.(*object.Function)
+	if !ok {
+		return newError("not a function: %s", fn.Type())
+	}
+
+	extendedEnv := extendFunctionEnv(function, args)
+	evaluated := Eval(function.Body, extendedEnv)
+	return unwrapReturnValue(evaluated)
+}
+
+func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {
+	env := object.NewEnclosedEnvironment(fn.Env)
+
+	for paramIndex, param := range fn.Parameters {
+		env.Set(param.Value, args[paramIndex])
+	}
+
+	// NOTE: 関数の環境にRESULT変数をセット
+	env.Set("RESULT", NULL)
+
+	return env
+}
+
+func unwrapReturnValue(obj object.Object) object.Object {
+	// 環境にNULLでないResultがあることを確認する
+	if resultValue, ok := obj.(*object.ResultValue); ok {
+		return resultValue.Value
+	}
+
+	return obj
+}
+
+func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	var result object.Object
 
-	for _, statement := range stmts {
+	for _, statement := range program.Statements {
 		result = Eval(statement, env)
 
 		switch result := result.(type) {
+		case *object.ResultValue:
+			return result.Value
 		case *object.Error:
+			return result
+		}
+	}
+
+	return result
+}
+
+func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
+	var result object.Object
+
+	for _, stmt := range block.Statements {
+		result = Eval(stmt, env)
+
+		if result != nil && result.Type() == object.RESULT_VALUE_OBJ {
 			return result
 		}
 	}
