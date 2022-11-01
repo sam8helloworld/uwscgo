@@ -369,6 +369,15 @@ FEND
 fn(5)`,
 			5,
 		},
+		{
+			"引数を利用した変数をRESULTに代入",
+			`FUNCTION fn(x)
+	DIM y = x + 5
+	RESULT = y
+FEND
+fn(5)`,
+			10,
+		},
 	}
 
 	for _, tt := range tests {
