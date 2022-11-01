@@ -116,6 +116,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseIfbStatement()
 	case token.FUNCTION:
 		return p.parseFunctionStatement()
+	case token.RESULT:
+		return p.parseResultStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -502,4 +504,23 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 		return nil
 	}
 	return args
+}
+
+func (p *Parser) parseResultStatement() *ast.ResultStatement {
+	stmt := &ast.ResultStatement{
+		Token: p.curToken,
+	}
+
+	if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
+		return nil
+	}
+
+	p.nextToken()
+
+	stmt.ResultValue = p.parseExpression(LOWEST, false)
+
+	if p.peekTokenIs(token.EOL) {
+		p.nextToken()
+	}
+	return stmt
 }

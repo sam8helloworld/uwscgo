@@ -830,3 +830,34 @@ func TestCallExpressionParsing(t *testing.T) {
 	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
 	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
 }
+
+func TestResultStatements(t *testing.T) {
+	input := `FUNCTION fn()
+	RESULT = 5
+FEND`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain 1 statement. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.FunctionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.FunctionStatement. got=%T", program.Statements[0])
+	}
+
+	if len(stmt.Body.Statements) != 1 {
+		t.Fatalf("stmt.Body.Statements does not contain 1 statement. got=%d", len(stmt.Body.Statements))
+	}
+
+	rstmt, ok := stmt.Body.Statements[0].(*ast.ResultStatement)
+	if !ok {
+		t.Fatalf("stmt.Body.Statements[0] is not ast.ResultStatement. got=%T", stmt.Body.Statements[0])
+	}
+
+	testIntegerLiteral(t, rstmt.ResultValue, 5)
+}

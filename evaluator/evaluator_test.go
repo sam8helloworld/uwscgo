@@ -352,12 +352,74 @@ func TestFunctionApplication(t *testing.T) {
 		name     string
 		input    string
 		expected int64
-	}{}
+	}{
+		{
+			"引数なし",
+			`FUNCTION fn()
+	RESULT = 5
+FEND
+fn()`,
+			5,
+		},
+		{
+			"引数1つ",
+			`FUNCTION fn(x)
+	RESULT = x
+FEND
+fn(5)`,
+			5,
+		},
+		{
+			"引数を利用した変数をRESULTに代入",
+			`FUNCTION fn(x)
+	DIM y = x + 5
+	RESULT = y
+FEND
+fn(5)`,
+			10,
+		},
+	}
 
-	// TODO: Return文の実装後
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testIntegerObject(t, testEval(tt.input), tt.expected)
+		})
+	}
+}
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		name            string
+		input           string
+		expectedMessage string
+	}{
+		{
+			"型が異なるもの同士の足し算",
+			"5 + TRUE",
+			"type mismatch: INTEGER + BOOLEAN",
+		},
+		{
+			"予期せぬ前置演算子",
+			"-TRUE",
+			"unknown operator: -BOOLEAN",
+		},
+		{
+			"予期せぬ中置演算子",
+			"TRUE + FALSE",
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			errObj, ok := evaluated.(*object.Error)
+			if !ok {
+				t.Fatalf("no error object returned. got=%T (%+v)", evaluated, errObj)
+			}
+			if errObj.Message != tt.expectedMessage {
+				t.Errorf("wrong error message. expected=%s, got=%s", tt.expectedMessage, errObj.Message)
+			}
 		})
 	}
 }

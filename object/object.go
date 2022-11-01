@@ -11,10 +11,12 @@ import (
 type ObjectType string
 
 const (
-	INTEGER_OBJ  = "INTEGER"
-	NULL_OBJ     = "NULL"
-	BOOLEAN_OBJ  = "BOOLEAN"
-	FUNCTION_OBJ = "FUNCTION"
+	INTEGER_OBJ      = "INTEGER"
+	NULL_OBJ         = "NULL"
+	BOOLEAN_OBJ      = "BOOLEAN"
+	FUNCTION_OBJ     = "FUNCTION"
+	ERROR_OBJ        = "ERROR"
+	RESULT_VALUE_OBJ = "RESULT_VALUE"
 )
 
 type Object interface {
@@ -32,6 +34,18 @@ func (i *Integer) Inspect() string {
 
 func (i *Integer) Type() ObjectType {
 	return INTEGER_OBJ
+}
+
+type Error struct {
+	Message string
+}
+
+func (e *Error) Inspect() string {
+	return "ERROR: " + e.Message
+}
+
+func (e *Error) Type() ObjectType {
+	return ERROR_OBJ
 }
 
 type Null struct{}
@@ -59,6 +73,7 @@ type Function struct {
 	Name       string
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement
+	Env        *Environment
 }
 
 func (f *Function) Type() ObjectType {
@@ -84,4 +99,16 @@ func (f *Function) Inspect() string {
 	out.WriteString("\n")
 
 	return out.String()
+}
+
+type ResultValue struct {
+	Value Object
+}
+
+func (rv *ResultValue) Type() ObjectType {
+	return RESULT_VALUE_OBJ
+}
+
+func (rv *ResultValue) Inspect() string {
+	return rv.Value.Inspect()
 }
