@@ -361,3 +361,40 @@ func TestFunctionApplication(t *testing.T) {
 		})
 	}
 }
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		name            string
+		input           string
+		expectedMessage string
+	}{
+		{
+			"型が異なるもの同士の足し算",
+			"5 + TRUE",
+			"type mismatch: INTEGER + BOOLEAN",
+		},
+		{
+			"予期せぬ前置演算子",
+			"-TRUE",
+			"unknown operator: -BOOLEAN",
+		},
+		{
+			"予期せぬ中置演算子",
+			"TRUE + FALSE",
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			errObj, ok := evaluated.(*object.Error)
+			if !ok {
+				t.Fatalf("no error object returned. got=%T (%+v)", evaluated, errObj)
+			}
+			if errObj.Message != tt.expectedMessage {
+				t.Errorf("wrong error message. expected=%s, got=%s", tt.expectedMessage, errObj.Message)
+			}
+		})
+	}
+}
