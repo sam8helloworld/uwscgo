@@ -750,7 +750,7 @@ FEND`
 	testInfixExpression(t, bodyStmt.Expression, "x", "+", "y")
 }
 
-func TestFunctionParameterparsing(t *testing.T) {
+func TestFunctionParameterParsing(t *testing.T) {
 	tests := []struct {
 		name           string
 		input          string
