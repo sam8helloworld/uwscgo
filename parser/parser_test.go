@@ -832,7 +832,7 @@ func TestCallExpressionParsing(t *testing.T) {
 }
 
 func TestResultStatements(t *testing.T) {
-	input := `Fucntion fn()
+	input := `FUNCTION fn()
 	RESULT = 5
 FEND`
 
