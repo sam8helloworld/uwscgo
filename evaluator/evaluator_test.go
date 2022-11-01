@@ -349,9 +349,10 @@ func testNullObject(t *testing.T, obj object.Object) bool {
 
 func TestFunctionApplication(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    string
-		expected int64
+		name               string
+		input              string
+		expected           int64
+		expectErrorMessage string
 	}{
 		{
 			"引数なし",
@@ -360,6 +361,7 @@ func TestFunctionApplication(t *testing.T) {
 FEND
 fn()`,
 			5,
+			"",
 		},
 		{
 			"引数1つ",
@@ -368,6 +370,7 @@ fn()`,
 FEND
 fn(5)`,
 			5,
+			"",
 		},
 		{
 			"引数を利用した変数をRESULTに代入",
@@ -377,12 +380,33 @@ fn(5)`,
 FEND
 fn(5)`,
 			10,
+			"",
+		},
+		{
+			"RESULTがない場合はエラーになる",
+			`FUNCTION fn(x)
+	x
+FEND
+fn(5)`,
+			0,
+			"result value does not exist",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			testIntegerObject(t, testEval(tt.input), tt.expected)
+			if tt.expectErrorMessage != "" {
+				evaluated := testEval(tt.input)
+				errObj, ok := evaluated.(*object.Error)
+				if !ok {
+					t.Fatalf("no error object returned. got=%T (%+v)", evaluated, errObj)
+				}
+				if errObj.Message != tt.expectErrorMessage {
+					t.Errorf("wrong error message. expected=%s, got=%s", tt.expectErrorMessage, errObj.Message)
+				}
+			} else {
+				testIntegerObject(t, testEval(tt.input), tt.expected)
+			}
 		})
 	}
 }
