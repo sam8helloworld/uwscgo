@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"fmt"
+
 	"github.com/sam8helloworld/uwscgo/ast"
 	"github.com/sam8helloworld/uwscgo/object"
 )
@@ -10,6 +12,13 @@ var (
 	TRUE  = &object.Boolean{Value: true}
 	FALSE = &object.Boolean{Value: false}
 )
+
+func isError(obj object.Object) bool {
+	if obj != nil {
+		return obj.Type() == object.ERROR_OBJ
+	}
+	return false
+}
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
@@ -26,10 +35,19 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIdentifier(node, env)
 	case *ast.PrefixExpression:
 		right := Eval(node.Right, env)
+		if isError(right) {
+			return right
+		}
 		return evalPrefixExpression(node.Operator, right)
 	case *ast.InfixExpression:
 		left := Eval(node.Left, env)
+		if isError(left) {
+			return left
+		}
 		right := Eval(node.Right, env)
+		if isError(right) {
+			return right
+		}
 		return evalInfixExpression(node.Operator, left, right)
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
@@ -53,6 +71,15 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			Body:       body,
 		}
 		env.Set(name, function)
+	case *ast.CallExpression:
+		function := Eval(node.Function, env)
+		if isError(function) {
+			return function
+		}
+		args := evalExpressions(node.Arguments, env)
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
 	}
 	return nil
 }
@@ -62,6 +89,11 @@ func evalStatements(stmts []ast.Statement, env *object.Environment) object.Objec
 
 	for _, statement := range stmts {
 		result = Eval(statement, env)
+
+		switch result := result.(type) {
+		case *object.Error:
+			return result
+		}
 	}
 
 	return result
@@ -80,13 +112,13 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 	case "-":
 		return evalMinusPrefixOperatorExpression(right)
 	default:
-		return NULL
+		return newError("unknown operator: %s%s", operator, right.Type())
 	}
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	if right.Type() != object.INTEGER_OBJ {
-		return NULL
+		return newError("unknown operator: -%s", right.Type())
 	}
 
 	value := right.(*object.Integer).Value
@@ -97,8 +129,10 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+	case left.Type() != right.Type():
+		return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
 	default:
-		return NULL
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -140,7 +174,7 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case ">=":
 		return nativeBoolToBooleanObject(leftVal >= rightVal)
 	default:
-		return NULL
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -153,6 +187,9 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 
 func evalIfExpression(ie *ast.IfStatement, env *object.Environment) object.Object {
 	condition := Eval(ie.Condition, env)
+	if isError(condition) {
+		return condition
+	}
 	if isTruthy(condition) {
 		return Eval(ie.Consequence, env)
 	} else if ie.Alternative != nil {
@@ -165,6 +202,9 @@ func evalIfExpression(ie *ast.IfStatement, env *object.Environment) object.Objec
 // NOTE: evalIfExpressionと処理が共通だが可読性からあえて分けている
 func evalIfbStatement(is *ast.IfbStatement, env *object.Environment) object.Object {
 	condition := Eval(is.Condition, env)
+	if isError(condition) {
+		return condition
+	}
 	if isTruthy(condition) {
 		return Eval(is.Consequence, env)
 	} else if is.Alternative != nil {
@@ -191,4 +231,22 @@ func isTruthy(obj object.Object) bool {
 func evalAssignExpression(name string, val object.Object, env *object.Environment) object.Object {
 	env.Set(name, val)
 	return val
+}
+
+func newError(format string, a ...interface{}) *object.Error {
+	return &object.Error{Message: fmt.Sprintf(format, a...)}
+}
+
+func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, e := range exps {
+		evaluated := Eval(e, env)
+		if isError(evaluated) {
+			return []object.Object{evaluated}
+		}
+		result = append(result, evaluated)
+	}
+
+	return result
 }
