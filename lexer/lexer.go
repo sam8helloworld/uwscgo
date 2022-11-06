@@ -134,6 +134,12 @@ func (l *Lexer) NextToken() token.Token {
 			Type:    token.COMMA,
 			Literal: string(l.ch),
 		}
+	case '"':
+		literal := l.readString()
+		tok = token.Token{
+			Type:    token.STRING,
+			Literal: literal,
+		}
 	case '\r':
 	case '\n':
 		tok = token.Token{
@@ -185,6 +191,17 @@ func (l *Lexer) skipWhiteSpace() {
 	for l.ch == ' ' || l.ch == '\t' {
 		l.readChar()
 	}
+}
+
+func (l *Lexer) readString() string {
+	position := l.position + 1
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+	return l.input[position:l.position]
 }
 
 func isLetter(ch byte) bool {

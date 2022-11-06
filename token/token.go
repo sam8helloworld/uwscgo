@@ -73,7 +73,7 @@ const (
 	IDENT = "IDENT"
 	INT   = "INT"
 	// EXPANDABLE_STRING = "EXPANDABLE_STRING"
-	// STRING            = "STRING"
+	STRING = "STRING"
 )
 
 var reservedWords = map[string]TokenType{
