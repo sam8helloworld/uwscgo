@@ -1,5 +1,7 @@
 package token
 
+import "strings"
+
 type TokenType string
 type Token struct {
 	Type    TokenType
@@ -95,7 +97,7 @@ var reservedWords = map[string]TokenType{
 }
 
 func LookupIdent(ident string) TokenType {
-	if tokType, ok := reservedWords[ident]; ok {
+	if tokType, ok := reservedWords[strings.ToUpper(ident)]; ok {
 		return tokType
 	}
 	return IDENT
