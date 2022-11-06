@@ -431,3 +431,40 @@ func TestNextToken_文字列(t *testing.T) {
 
 	testToken(t, tests)
 }
+
+func TestNextToken_識別子の大文字小文字(t *testing.T) {
+	tests := []Args{
+		{
+			name:  "全て小文字",
+			input: `dim`,
+			expected: []token.Token{
+				{
+					Type:    token.DIM,
+					Literal: "dim",
+				},
+			},
+		},
+		{
+			name:  "全て大文字",
+			input: `DIM`,
+			expected: []token.Token{
+				{
+					Type:    token.DIM,
+					Literal: "DIM",
+				},
+			},
+		},
+		{
+			name:  "大文字と小文字が混在",
+			input: `Dim`,
+			expected: []token.Token{
+				{
+					Type:    token.DIM,
+					Literal: "Dim",
+				},
+			},
+		},
+	}
+
+	testToken(t, tests)
+}
