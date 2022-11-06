@@ -206,6 +206,8 @@ func (p *Parser) parseExpression(precedure int, isStartOfLine bool) ast.Expressi
 		leftExp = p.parseBoolean()
 	case token.LEFT_PARENTHESIS:
 		leftExp = p.parseGroupedExpression()
+	case token.STRING:
+		leftExp = p.parseStringLiteral()
 	}
 
 	for !p.peekTokenIs(token.EOL) && precedure < p.peekPrecedence() {
@@ -526,4 +528,11 @@ func (p *Parser) parseResultStatement() *ast.ResultStatement {
 		p.nextToken()
 	}
 	return stmt
+}
+
+func (p *Parser) parseStringLiteral() ast.Expression {
+	return &ast.StringLiteral{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
 }

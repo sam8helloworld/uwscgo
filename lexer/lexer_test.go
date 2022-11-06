@@ -404,3 +404,30 @@ func TestNextToken_関数(t *testing.T) {
 
 	testToken(t, tests)
 }
+
+func TestNextToken_文字列(t *testing.T) {
+	tests := []Args{
+		{
+			name:  "1単語の文字列",
+			input: `"foobar"`,
+			expected: []token.Token{
+				{
+					Type:    token.STRING,
+					Literal: "foobar",
+				},
+			},
+		},
+		{
+			name:  "空白が入った文字列",
+			input: `"foo bar"`,
+			expected: []token.Token{
+				{
+					Type:    token.STRING,
+					Literal: "foo bar",
+				},
+			},
+		},
+	}
+
+	testToken(t, tests)
+}
