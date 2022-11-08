@@ -468,3 +468,120 @@ func TestNextToken_識別子の大文字小文字(t *testing.T) {
 
 	testToken(t, tests)
 }
+
+func TestNextToken_配列(t *testing.T) {
+	tests := []Args{
+		{
+			name:  "1次元の空の配列定義",
+			input: `DIM array[-1]`,
+			expected: []token.Token{
+				{
+					Type:    token.DIM,
+					Literal: "DIM",
+				},
+				{
+					Type:    token.IDENT,
+					Literal: "array",
+				},
+				{
+					Type:    token.LEFT_SQUARE_BRACKET,
+					Literal: "[",
+				},
+				{
+					Type:    token.INT,
+					Literal: "-1",
+				},
+				{
+					Type:    token.RIGHT_SQUARE_BRACKET,
+					Literal: "]",
+				},
+			},
+		},
+		{
+			name:  "1次元の要素数がある配列定義",
+			input: `DIM array[2]`,
+			expected: []token.Token{
+				{
+					Type:    token.DIM,
+					Literal: "DIM",
+				},
+				{
+					Type:    token.IDENT,
+					Literal: "array",
+				},
+				{
+					Type:    token.LEFT_SQUARE_BRACKET,
+					Literal: "[",
+				},
+				{
+					Type:    token.INT,
+					Literal: "2",
+				},
+				{
+					Type:    token.RIGHT_SQUARE_BRACKET,
+					Literal: "]",
+				},
+			},
+		},
+		{
+			name:  "初期値を伴う1次元の配列と定義",
+			input: `DIM array[3] = 1, 2, 3, 4`,
+			expected: []token.Token{
+				{
+					Type:    token.DIM,
+					Literal: "DIM",
+				},
+				{
+					Type:    token.IDENT,
+					Literal: "array",
+				},
+				{
+					Type:    token.LEFT_SQUARE_BRACKET,
+					Literal: "[",
+				},
+				{
+					Type:    token.INT,
+					Literal: "-1",
+				},
+				{
+					Type:    token.RIGHT_SQUARE_BRACKET,
+					Literal: "]",
+				},
+				{
+					Type:    token.EQUAL_OR_ASSIGN,
+					Literal: "1",
+				},
+				{
+					Type:    token.COMMA,
+					Literal: ",",
+				},
+				{
+					Type:    token.EQUAL_OR_ASSIGN,
+					Literal: "2",
+				},
+				{
+					Type:    token.COMMA,
+					Literal: ",",
+				},
+				{
+					Type:    token.EQUAL_OR_ASSIGN,
+					Literal: "3",
+				},
+				{
+					Type:    token.COMMA,
+					Literal: ",",
+				},
+				{
+					Type:    token.EQUAL_OR_ASSIGN,
+					Literal: "4",
+				},
+				{
+					Type:    token.COMMA,
+					Literal: ",",
+				},
+			},
+		},
+	}
+
+	testToken(t, tests)
+}
