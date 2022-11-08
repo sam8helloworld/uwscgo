@@ -45,6 +45,8 @@ const (
 	BANG                  = "!"
 	LEFT_PARENTHESIS      = "("
 	RIGHT_PARENTHESIS     = ")"
+	LEFT_SQUARE_BRACKET   = "["
+	RIGHT_SQUARE_BRACKET  = "]"
 	LEFT_BRACKET          = "{"
 	RIGHT_BRACKET         = "}"
 	COMMA                 = ","

@@ -488,8 +488,12 @@ func TestNextToken_配列(t *testing.T) {
 					Literal: "[",
 				},
 				{
+					Type:    token.MINUS,
+					Literal: "-",
+				},
+				{
 					Type:    token.INT,
-					Literal: "-1",
+					Literal: "1",
 				},
 				{
 					Type:    token.RIGHT_SQUARE_BRACKET,
@@ -541,7 +545,7 @@ func TestNextToken_配列(t *testing.T) {
 				},
 				{
 					Type:    token.INT,
-					Literal: "-1",
+					Literal: "3",
 				},
 				{
 					Type:    token.RIGHT_SQUARE_BRACKET,
@@ -549,6 +553,10 @@ func TestNextToken_配列(t *testing.T) {
 				},
 				{
 					Type:    token.EQUAL_OR_ASSIGN,
+					Literal: "=",
+				},
+				{
+					Type:    token.INT,
 					Literal: "1",
 				},
 				{
@@ -556,7 +564,7 @@ func TestNextToken_配列(t *testing.T) {
 					Literal: ",",
 				},
 				{
-					Type:    token.EQUAL_OR_ASSIGN,
+					Type:    token.INT,
 					Literal: "2",
 				},
 				{
@@ -564,7 +572,7 @@ func TestNextToken_配列(t *testing.T) {
 					Literal: ",",
 				},
 				{
-					Type:    token.EQUAL_OR_ASSIGN,
+					Type:    token.INT,
 					Literal: "3",
 				},
 				{
@@ -572,12 +580,8 @@ func TestNextToken_配列(t *testing.T) {
 					Literal: ",",
 				},
 				{
-					Type:    token.EQUAL_OR_ASSIGN,
+					Type:    token.INT,
 					Literal: "4",
-				},
-				{
-					Type:    token.COMMA,
-					Literal: ",",
 				},
 			},
 		},
