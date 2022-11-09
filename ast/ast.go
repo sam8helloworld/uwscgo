@@ -308,9 +308,9 @@ func (b *Boolean) String() string {
 }
 
 type AssignmentExpression struct {
-	Token      token.Token
-	Identifier *Identifier
-	Value      Expression
+	Token token.Token
+	Left  Expression
+	Value Expression
 }
 
 func (ae *AssignmentExpression) expressionNode() {}

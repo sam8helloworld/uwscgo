@@ -228,12 +228,17 @@ func (p *Parser) parseExpression(precedure int, isStartOfLine bool) ast.Expressi
 		p.nextToken()
 
 		leftExp = infix(leftExp)
-	}
 
+		if isStartOfLine {
+			if exp := p.parseAssignExpression(leftExp); exp != nil {
+				return exp
+			}
+		}
+	}
 	return leftExp
 }
 
-func (p *Parser) parseAssignExpression(left *ast.Identifier) *ast.AssignmentExpression {
+func (p *Parser) parseAssignExpression(left ast.Expression) *ast.AssignmentExpression {
 	tok := p.curToken
 	switch p.peekToken.Type {
 	case token.EQUAL_OR_ASSIGN:
@@ -242,9 +247,9 @@ func (p *Parser) parseAssignExpression(left *ast.Identifier) *ast.AssignmentExpr
 
 		exp := p.parseExpression(LOWEST, false)
 		return &ast.AssignmentExpression{
-			Token:      tok,
-			Identifier: left,
-			Value:      exp,
+			Token: tok,
+			Left:  left,
+			Value: exp,
 		}
 	default:
 		return nil
