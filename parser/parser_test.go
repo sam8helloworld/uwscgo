@@ -902,3 +902,83 @@ func TestStringLiteralExpression(t *testing.T) {
 	}
 
 }
+
+func TestParsingArrayLiterals(t *testing.T) {
+	input := `DIM array[2] = 1, 2 * 2, 3 + 3`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.DimStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.DimStatement. got=%T", program.Statements[0])
+	}
+	array, ok := stmt.Value.(*ast.ArrayLiteral)
+	if !ok {
+		t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Value)
+	}
+
+	if len(array.Elements) != 3 {
+		t.Fatalf("len(array.Elements) not 3. got=%d", len(array.Elements))
+	}
+
+	testIntegerLiteral(t, array.Index, 2)
+	testIntegerLiteral(t, array.Elements[0], 1)
+	testInfixExpression(t, array.Elements[1], 2, "*", 2)
+	testInfixExpression(t, array.Elements[2], 3, "+", 3)
+}
+
+func TestParsingArrayLiterals_空配列(t *testing.T) {
+	input := `DIM array[] = 1, 2 * 2, 3 + 3`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.DimStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.DimStatement. got=%T", program.Statements[0])
+	}
+	array, ok := stmt.Value.(*ast.ArrayLiteral)
+	if !ok {
+		t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Value)
+	}
+
+	if len(array.Elements) != 3 {
+		t.Fatalf("len(array.Elements) not 3. got=%d", len(array.Elements))
+	}
+
+	if array.Index != nil {
+		t.Errorf("array.Index has wrong value. got=%q, want=nil", array.Index)
+	}
+	testIntegerLiteral(t, array.Elements[0], 1)
+	testInfixExpression(t, array.Elements[1], 2, "*", 2)
+	testInfixExpression(t, array.Elements[2], 3, "+", 3)
+}
+
+func TestParsingArrayLiterals_配列変数の宣言のみ(t *testing.T) {
+	input := `DIM array[2]`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.DimStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.DimStatement. got=%T", program.Statements[0])
+	}
+	array, ok := stmt.Value.(*ast.ArrayLiteral)
+	if !ok {
+		t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Value)
+	}
+
+	if len(array.Elements) != 0 {
+		t.Fatalf("len(array.Elements) not 0. got=%d", len(array.Elements))
+	}
+
+	testIntegerLiteral(t, array.Index, 2)
+}
