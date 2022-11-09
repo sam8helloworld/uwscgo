@@ -133,16 +133,22 @@ func (p *Parser) parseDimStatement() *ast.DimStatement {
 
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
-	if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
-		return nil
-	}
-
-	p.nextToken()
-
-	stmt.Value = p.parseExpression(LOWEST, false)
-
-	if p.peekTokenIs(token.EOL) {
+	// 配列の場合
+	if p.peekTokenIs(token.LEFT_SQUARE_BRACKET) {
 		p.nextToken()
+		stmt.Value = p.parseArrayLiteral()
+	} else {
+		if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
+			return nil
+		}
+
+		p.nextToken()
+
+		stmt.Value = p.parseExpression(LOWEST, false)
+
+		if p.peekTokenIs(token.EOL) {
+			p.nextToken()
+		}
 	}
 	return stmt
 }
@@ -535,4 +541,54 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
+}
+
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	array := &ast.ArrayLiteral{Token: p.curToken}
+	if p.peekTokenIs(token.RIGHT_SQUARE_BRACKET) { // 空配列
+		p.nextToken()
+		if p.peekTokenIs(token.EOL) || p.peekTokenIs(token.EOF) {
+			p.nextToken()
+			return array
+		}
+		if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
+			return nil
+		}
+		p.nextToken()
+		array.Elements = p.parseExpressionList()
+	} else { // 添字あり
+		p.nextToken()
+		array.Index = p.parseExpression(LOWEST, false)
+		p.nextToken()
+		if !p.curTokenIs(token.RIGHT_SQUARE_BRACKET) {
+			return nil
+		}
+		if p.peekTokenIs(token.EOL) || p.peekTokenIs(token.EOF) {
+			p.nextToken()
+			return array
+		}
+		if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
+			return array
+		}
+		p.nextToken()
+		array.Elements = p.parseExpressionList()
+	}
+	return array
+}
+
+func (p *Parser) parseExpressionList() []ast.Expression {
+	list := []ast.Expression{}
+
+	list = append(list, p.parseExpression(LOWEST, false))
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		list = append(list, p.parseExpression(LOWEST, false))
+	}
+
+	if !p.peekTokenIs(token.EOL) && !p.peekTokenIs(token.EOF) {
+		return nil
+	}
+	return list
 }
