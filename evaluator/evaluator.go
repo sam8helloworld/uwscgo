@@ -92,7 +92,12 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
 	case *ast.ArrayLiteral:
-		// TODO: indexの値とelementsの個数がずれていたらエラー
+		length, ok := node.Index.(*ast.IntegerLiteral)
+		if ok {
+			if int(length.Value)+1 != len(node.Elements) {
+				return newError("array has wrong size: %s", node.String())
+			}
+		}
 		elements := evalExpressions(node.Elements, env)
 		if len(elements) == 1 && isError(elements[0]) {
 			return elements[0]
