@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"strings"
 	"unicode/utf8"
 
 	"github.com/sam8helloworld/uwscgo/object"
@@ -22,4 +23,10 @@ var builtins = map[string]*object.Builtin{
 			}
 		},
 	},
+}
+
+func builtin(key string) (*object.Builtin, bool) {
+	k := strings.ToUpper(key)
+	result, ok := builtins[k]
+	return result, ok
 }
