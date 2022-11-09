@@ -497,6 +497,12 @@ func TestBuiltinFunctions(t *testing.T) {
 			`LENGTH("hello world!")`,
 			12,
 		},
+		{
+			"LENGTH_配列の場合は配列の要素数を返す",
+			`DIM array[] = 1, 2, 3
+LENGTH(array)`,
+			3,
+		},
 	}
 
 	for _, tt := range tests {
