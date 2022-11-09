@@ -539,6 +539,21 @@ array
 	testIntegerObject(t, array.Elements[2], 6)
 }
 
+func TestArrayLiterals_配列の要素数が宣言と異なる(t *testing.T) {
+	input := `DIM array[1] = 1, 2 * 2, 3 + 3
+array
+	`
+	expectedMessage := "array has wrong size: [1, (2 * 2), (3 + 3)]"
+	evaluated := testEval(input)
+	errObj, ok := evaluated.(*object.Error)
+	if !ok {
+		t.Fatalf("no error object returned. got=%T (%+v)", evaluated, errObj)
+	}
+	if errObj.Message != expectedMessage {
+		t.Errorf("wrong error message. expected=%s, got=%s", expectedMessage, errObj.Message)
+	}
+}
+
 func TestArrayIndexExpressions(t *testing.T) {
 	tests := []struct {
 		name     string
