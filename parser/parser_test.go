@@ -556,6 +556,16 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"fn(a + b + c * d / f + g)",
 			"fn((((a + b) + ((c * d) / f)) + g))",
 		},
+		{
+			"添字演算子を使ったグルーピングのパターン01",
+			"a * xxx[b * c] * d",
+			"((a * (xxx[(b * c)])) * d)",
+		},
+		{
+			"添字演算子を使ったグルーピングのパターン02",
+			"add(a * b[2], b[1], 2 * xxx[1])",
+			"add((a * (b[2])), (b[1]), (2 * (xxx[1])))",
+		},
 	}
 
 	for _, tt := range tests {
@@ -899,6 +909,113 @@ func TestStringLiteralExpression(t *testing.T) {
 
 	if literal.Value != "hello world" {
 		t.Errorf("literal.Value not %q. got=%q", "hello world", literal.Value)
+	}
+
+}
+
+func TestParsingArrayLiterals(t *testing.T) {
+	input := `DIM array[2] = 1, 2 * 2, 3 + 3`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.DimStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.DimStatement. got=%T", program.Statements[0])
+	}
+	array, ok := stmt.Value.(*ast.ArrayLiteral)
+	if !ok {
+		t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Value)
+	}
+
+	if len(array.Elements) != 3 {
+		t.Fatalf("len(array.Elements) not 3. got=%d", len(array.Elements))
+	}
+
+	testIntegerLiteral(t, array.Index, 2)
+	testIntegerLiteral(t, array.Elements[0], 1)
+	testInfixExpression(t, array.Elements[1], 2, "*", 2)
+	testInfixExpression(t, array.Elements[2], 3, "+", 3)
+}
+
+func TestParsingArrayLiterals_空配列(t *testing.T) {
+	input := `DIM array[] = 1, 2 * 2, 3 + 3`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.DimStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.DimStatement. got=%T", program.Statements[0])
+	}
+	array, ok := stmt.Value.(*ast.ArrayLiteral)
+	if !ok {
+		t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Value)
+	}
+
+	if len(array.Elements) != 3 {
+		t.Fatalf("len(array.Elements) not 3. got=%d", len(array.Elements))
+	}
+
+	if array.Index != nil {
+		t.Errorf("array.Index has wrong value. got=%q, want=nil", array.Index)
+	}
+	testIntegerLiteral(t, array.Elements[0], 1)
+	testInfixExpression(t, array.Elements[1], 2, "*", 2)
+	testInfixExpression(t, array.Elements[2], 3, "+", 3)
+}
+
+func TestParsingArrayLiterals_配列変数の宣言のみ(t *testing.T) {
+	input := `DIM array[2]`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.DimStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.DimStatement. got=%T", program.Statements[0])
+	}
+	array, ok := stmt.Value.(*ast.ArrayLiteral)
+	if !ok {
+		t.Fatalf("exp not ast.ArrayLiteral. got=%T", stmt.Value)
+	}
+
+	if len(array.Elements) != 0 {
+		t.Fatalf("len(array.Elements) not 0. got=%d", len(array.Elements))
+	}
+
+	testIntegerLiteral(t, array.Index, 2)
+}
+
+func TestParsingIndexExpressions(t *testing.T) {
+	input := `arr[1 + 1]`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+	indexExp, ok := stmt.Expression.(*ast.IndexExpression)
+	if !ok {
+		t.Fatalf("exp not ast.IndexExpression. got=%T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, indexExp.Left, "arr") {
+		return
+	}
+
+	if !testInfixExpression(t, indexExp.Index, 1, "+", 1) {
+		return
 	}
 
 }

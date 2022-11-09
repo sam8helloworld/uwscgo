@@ -497,6 +497,12 @@ func TestBuiltinFunctions(t *testing.T) {
 			`LENGTH("hello world!")`,
 			12,
 		},
+		{
+			"LENGTH_配列の場合は配列の要素数を返す",
+			`DIM array[] = 1, 2, 3
+LENGTH(array)`,
+			3,
+		},
 	}
 
 	for _, tt := range tests {
@@ -514,6 +520,93 @@ func TestBuiltinFunctions(t *testing.T) {
 				if errObj.Message != expected {
 					t.Errorf("wrong error message. expected=%q, got=%q", expected, errObj.Message)
 				}
+			}
+		})
+	}
+}
+
+func TestArrayLiterals(t *testing.T) {
+	input := `DIM array[2] = 1, 2 * 2, 3 + 3
+array
+	`
+
+	evaluated := testEval(input)
+	array, ok := evaluated.(*object.Array)
+	if !ok {
+		t.Fatalf("object is not Array. got=%T (%+v)", evaluated, evaluated)
+	}
+
+	if len(array.Elements) != 3 {
+		t.Fatalf("array has wrong num of elements. got=%d", len(array.Elements))
+	}
+
+	testIntegerObject(t, array.Elements[0], 1)
+	testIntegerObject(t, array.Elements[1], 4)
+	testIntegerObject(t, array.Elements[2], 6)
+}
+
+func TestArrayLiterals_配列の要素数が宣言と異なる(t *testing.T) {
+	input := `DIM array[1] = 1, 2 * 2, 3 + 3
+array
+	`
+	expectedMessage := "array has wrong size: [1, (2 * 2), (3 + 3)]"
+	evaluated := testEval(input)
+	errObj, ok := evaluated.(*object.Error)
+	if !ok {
+		t.Fatalf("no error object returned. got=%T (%+v)", evaluated, errObj)
+	}
+	if errObj.Message != expectedMessage {
+		t.Errorf("wrong error message. expected=%s, got=%s", expectedMessage, errObj.Message)
+	}
+}
+
+func TestArrayIndexExpressions(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected interface{}
+	}{
+		{
+			"配列の添字に直接数字を指定する",
+			`DIM array[] = 1, 2, 3
+array[0]`,
+			1,
+		},
+		{
+			"配列の添字に数字を代入した識別子を指定する",
+			`DIM array[] = 1, 2, 3
+DIM index = 0
+array[index]`,
+			1,
+		},
+		{
+			"配列の添字に数字の計算結果を指定する",
+			`DIM array[] = 1, 2, 3
+array[1 + 1]`,
+			3,
+		},
+		{
+			"配列のそれぞれの値を加算する",
+			`DIM array[] = 1, 2, 3
+array[0] + array[1] + array[2]`,
+			6,
+		},
+		{
+			"配列の存在しない要素を指定する",
+			`DIM array[] = 1, 2, 3
+array[3]`,
+			nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			integer, ok := tt.expected.(int)
+			if ok {
+				testIntegerObject(t, evaluated, int64(integer))
+			} else {
+				testNullObject(t, evaluated)
 			}
 		})
 	}

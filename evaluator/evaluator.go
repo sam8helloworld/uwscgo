@@ -91,6 +91,28 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return applyFunction(function, args)
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
+	case *ast.ArrayLiteral:
+		length, ok := node.Index.(*ast.IntegerLiteral)
+		if ok {
+			if int(length.Value)+1 != len(node.Elements) {
+				return newError("array has wrong size: %s", node.String())
+			}
+		}
+		elements := evalExpressions(node.Elements, env)
+		if len(elements) == 1 && isError(elements[0]) {
+			return elements[0]
+		}
+		return &object.Array{Elements: elements}
+	case *ast.IndexExpression:
+		left := Eval(node.Left, env)
+		if isError(left) {
+			return left
+		}
+		index := Eval(node.Index, env)
+		if isError(index) {
+			return index
+		}
+		return evalIndexExpression(left, index)
 	}
 	return nil
 }
@@ -167,7 +189,7 @@ func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object
 		return val
 	}
 
-	if builtin, ok := builtins[node.Value]; ok {
+	if builtin, ok := builtin(node.Value); ok {
 		return builtin
 	}
 	return newError("identifier not found: " + node.Value)
@@ -326,4 +348,24 @@ func evalStringInfixExpression(operator string, left, right object.Object) objec
 	leftVal := left.(*object.String).Value
 	rightVal := right.(*object.String).Value
 	return &object.String{Value: leftVal + rightVal}
+}
+
+func evalIndexExpression(left, index object.Object) object.Object {
+	switch {
+	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
+		return evalArrayIndexExpression(left, index)
+	default:
+		return newError("index operator not supported: %s", left.Type())
+	}
+}
+
+func evalArrayIndexExpression(array, index object.Object) object.Object {
+	arrayObject := array.(*object.Array)
+	idx := index.(*object.Integer).Value
+	max := int64(len(arrayObject.Elements) - 1)
+
+	if idx < 0 || idx > max {
+		return NULL
+	}
+	return arrayObject.Elements[idx]
 }

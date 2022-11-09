@@ -129,6 +129,16 @@ func (l *Lexer) NextToken() token.Token {
 			Type:    token.RIGHT_BRACKET,
 			Literal: string(l.ch),
 		}
+	case '[':
+		tok = token.Token{
+			Type:    token.LEFT_SQUARE_BRACKET,
+			Literal: string(l.ch),
+		}
+	case ']':
+		tok = token.Token{
+			Type:    token.RIGHT_SQUARE_BRACKET,
+			Literal: string(l.ch),
+		}
 	case ',':
 		tok = token.Token{
 			Type:    token.COMMA,
