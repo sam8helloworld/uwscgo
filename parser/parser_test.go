@@ -556,6 +556,16 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"fn(a + b + c * d / f + g)",
 			"fn((((a + b) + ((c * d) / f)) + g))",
 		},
+		{
+			"添字演算子を使ったグルーピングのパターン01",
+			"a * xxx[b * c] * d",
+			"((a * (xxx[(b * c)])) * d)",
+		},
+		{
+			"添字演算子を使ったグルーピングのパターン02",
+			"add(a * b[2], b[1], 2 * xxx[1])",
+			"add((a * (b[2])), (b[1]), (2 * (xxx[1])))",
+		},
 	}
 
 	for _, tt := range tests {
@@ -981,4 +991,31 @@ func TestParsingArrayLiterals_配列変数の宣言のみ(t *testing.T) {
 	}
 
 	testIntegerLiteral(t, array.Index, 2)
+}
+
+func TestParsingIndexExpressions(t *testing.T) {
+	input := `arr[1 + 1]`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+	indexExp, ok := stmt.Expression.(*ast.IndexExpression)
+	if !ok {
+		t.Fatalf("exp not ast.IndexExpression. got=%T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, indexExp.Left, "arr") {
+		return
+	}
+
+	if !testInfixExpression(t, indexExp.Index, 1, "+", 1) {
+		return
+	}
+
 }
