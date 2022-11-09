@@ -538,3 +538,55 @@ array
 	testIntegerObject(t, array.Elements[1], 4)
 	testIntegerObject(t, array.Elements[2], 6)
 }
+
+func TestArrayIndexExpressions(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected interface{}
+	}{
+		{
+			"配列の添字に直接数字を指定する",
+			`DIM array[] = 1, 2, 3
+array[0]`,
+			1,
+		},
+		{
+			"配列の添字に数字を代入した識別子を指定する",
+			`DIM array[] = 1, 2, 3
+DIM index = 0
+array[index]`,
+			1,
+		},
+		{
+			"配列の添字に数字の計算結果を指定する",
+			`DIM array[] = 1, 2, 3
+array[1 + 1]`,
+			3,
+		},
+		{
+			"配列のそれぞれの値を加算する",
+			`DIM array[] = 1, 2, 3
+array[0] + array[1] + array[2]`,
+			6,
+		},
+		{
+			"配列の存在しない要素を指定する",
+			`DIM array[] = 1, 2, 3
+array[3]`,
+			nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			integer, ok := tt.expected.(int)
+			if ok {
+				testIntegerObject(t, evaluated, int64(integer))
+			} else {
+				testNullObject(t, evaluated)
+			}
+		})
+	}
+}
