@@ -933,7 +933,7 @@ func TestParsingArrayLiterals(t *testing.T) {
 		t.Fatalf("len(array.Elements) not 3. got=%d", len(array.Elements))
 	}
 
-	testIntegerLiteral(t, array.Index, 2)
+	testIntegerLiteral(t, array.Size, 2)
 	testIntegerLiteral(t, array.Elements[0], 1)
 	testInfixExpression(t, array.Elements[1], 2, "*", 2)
 	testInfixExpression(t, array.Elements[2], 3, "+", 3)
@@ -960,8 +960,8 @@ func TestParsingArrayLiterals_空配列(t *testing.T) {
 		t.Fatalf("len(array.Elements) not 3. got=%d", len(array.Elements))
 	}
 
-	if array.Index != nil {
-		t.Errorf("array.Index has wrong value. got=%q, want=nil", array.Index)
+	if array.Size != nil {
+		t.Errorf("array.Size has wrong value. got=%q, want=nil", array.Size)
 	}
 	testIntegerLiteral(t, array.Elements[0], 1)
 	testInfixExpression(t, array.Elements[1], 2, "*", 2)
@@ -989,7 +989,7 @@ func TestParsingArrayLiterals_配列変数の宣言のみ(t *testing.T) {
 		t.Fatalf("len(array.Elements) not 0. got=%d", len(array.Elements))
 	}
 
-	testIntegerLiteral(t, array.Index, 2)
+	testIntegerLiteral(t, array.Size, 2)
 }
 
 func TestParsingIndexExpressions(t *testing.T) {

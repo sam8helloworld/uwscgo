@@ -566,7 +566,7 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 		array.Elements = p.parseExpressionList()
 	} else { // 添字あり
 		p.nextToken()
-		array.Index = p.parseExpression(LOWEST, false)
+		array.Size = p.parseExpression(LOWEST, false)
 		p.nextToken()
 		if !p.curTokenIs(token.RIGHT_SQUARE_BRACKET) {
 			return nil

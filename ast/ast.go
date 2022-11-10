@@ -370,7 +370,7 @@ func (sl *StringLiteral) String() string {
 
 type ArrayLiteral struct {
 	Token    token.Token
-	Index    Expression // MEMO: nilかINTしか入らないから型で縛った方が良さそう
+	Size     Expression // MEMO: nilかINTしか入らないから型で縛った方が良さそう
 	Elements []Expression
 }
 
