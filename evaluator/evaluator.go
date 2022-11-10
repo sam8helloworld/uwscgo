@@ -9,6 +9,7 @@ import (
 
 var (
 	NULL  = &object.Null{}
+	EMPTY = &object.Empty{}
 	TRUE  = &object.Boolean{Value: true}
 	FALSE = &object.Boolean{Value: false}
 )
@@ -88,7 +89,21 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return args[0]
 		}
 
-		return applyFunction(function, args)
+		switch fn := function.(type) {
+		case *object.Function:
+			return applyFunction(fn, args)
+		case *object.Builtin:
+			argss := []object.BuiltinFuncArgument{}
+			for i, arg := range args {
+				argss = append(argss, object.BuiltinFuncArgument{
+					Expression: node.Arguments[i],
+					Value:      arg,
+				})
+			}
+			return applyBuiltinFunction(fn, argss, env)
+		default:
+			return newError("not a function: %s", fn.Type())
+		}
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
 	case *ast.ArrayLiteral:
@@ -122,14 +137,20 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	return nil
 }
 
-func applyFunction(fn object.Object, args []object.Object) object.Object {
-	switch fn := fn.(type) {
-	case *object.Function:
-		extendedEnv := extendFunctionEnv(fn, args)
-		evaluated := Eval(fn.Body, extendedEnv)
-		return unwrapReturnValue(evaluated)
-	case *object.Builtin:
-		return fn.Fn(args...)
+func applyFunction(fn *object.Function, args []object.Object) object.Object {
+	extendedEnv := extendFunctionEnv(fn, args)
+	evaluated := Eval(fn.Body, extendedEnv)
+	return unwrapReturnValue(evaluated)
+}
+
+func applyBuiltinFunction(fn *object.Builtin, args []object.BuiltinFuncArgument, env *object.Environment) object.Object {
+	result := fn.Fn(args...)
+	switch r := result.(type) {
+	case *object.BuiltinFuncReturnResult:
+		return r.Value
+	case *object.BuiltinFuncReturnReference:
+		evalAssignExpression(r.Expression, r.Value, env)
+		return r.Result
 	default:
 		return newError("not a function: %s", fn.Type())
 	}

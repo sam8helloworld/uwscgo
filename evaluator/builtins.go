@@ -9,18 +9,66 @@ import (
 
 var builtins = map[string]*object.Builtin{
 	"LENGTH": {
-		Fn: func(args ...object.Object) object.Object {
+		Fn: func(args ...object.BuiltinFuncArgument) object.Object {
 			if len(args) != 1 {
-				return newError("wrong number of arguments. got=%d, want=1", len(args))
+				return &object.BuiltinFuncReturnResult{
+					Value: newError("argument to `LENGTH` not supported, got %s", args[0].Value.Type()),
+				}
 			}
-			switch arg := args[0].(type) {
+			switch arg := args[0].Value.(type) {
 			case *object.String:
-				return &object.Integer{Value: int64(utf8.RuneCountInString(arg.Value))}
+				return &object.BuiltinFuncReturnResult{
+					Value: &object.Integer{Value: int64(utf8.RuneCountInString(arg.Value))},
+				}
 			case *object.Array:
-				return &object.Integer{Value: int64(len(arg.Elements))}
+				return &object.BuiltinFuncReturnResult{
+					Value: &object.Integer{Value: int64(len(arg.Elements))},
+				}
 			default:
-				return newError("argument to `LENGTH` not supported, got %s", args[0].Type())
+				return &object.BuiltinFuncReturnResult{
+					Value: newError("argument to `LENGTH` not supported, got %s", args[0].Value.Type()),
+				}
 			}
+		},
+	},
+	"RESIZE": {
+		Fn: func(args ...object.BuiltinFuncArgument) object.Object {
+			if len(args) == 1 {
+				array, ok := args[0].Value.(*object.Array)
+				if !ok {
+					return newError("argument 1 to `RESIZE` not supported, got %s", args[0].Value.Type())
+				}
+				return &object.BuiltinFuncReturnResult{
+					Value: &object.Integer{Value: int64(len(array.Elements)) - 1},
+				}
+			}
+			if len(args) == 2 {
+				array, ok := args[0].Value.(*object.Array)
+				if !ok {
+					return newError("argument 1 to `RESIZE` not supported, got %s", args[0].Value.Type())
+				}
+				size, ok := args[1].Value.(*object.Integer)
+				if !ok {
+					return newError("argument 2 to `RESIZE` not supported, got %s", args[1].Value.Type())
+				}
+
+				resizedElements := make([]object.Object, len(array.Elements), size.Value+1)
+				for i := 0; i < int(size.Value)+1; i++ {
+					if i > len(array.Elements)-1 {
+						resizedElements = append(resizedElements, EMPTY)
+					} else {
+						resizedElements[i] = array.Elements[i]
+					}
+				}
+				return &object.BuiltinFuncReturnReference{
+					Expression: args[0].Expression,
+					Value: &object.Array{
+						Elements: resizedElements,
+					},
+					Result: size,
+				}
+			}
+			return newError("wrong number of arguments. got=%d, want=1", len(args))
 		},
 	},
 }
