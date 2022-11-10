@@ -11,15 +11,18 @@ import (
 type ObjectType string
 
 const (
-	INTEGER_OBJ      = "INTEGER"
-	NULL_OBJ         = "NULL"
-	BOOLEAN_OBJ      = "BOOLEAN"
-	FUNCTION_OBJ     = "FUNCTION"
-	ERROR_OBJ        = "ERROR"
-	RESULT_VALUE_OBJ = "RESULT_VALUE"
-	STRING_OBJ       = "STRING"
-	BUILTIN_OBJ      = "BUILTIN"
-	ARRAY_OBJ        = "ARRAY"
+	INTEGER_OBJ                       = "INTEGER"
+	NULL_OBJ                          = "NULL"
+	EMPTY_OBJ                         = "EMPTY"
+	BOOLEAN_OBJ                       = "BOOLEAN"
+	FUNCTION_OBJ                      = "FUNCTION"
+	ERROR_OBJ                         = "ERROR"
+	RESULT_VALUE_OBJ                  = "RESULT_VALUE"
+	STRING_OBJ                        = "STRING"
+	BUILTIN_OBJ                       = "BUILTIN"
+	ARRAY_OBJ                         = "ARRAY"
+	BUILTIN_FUNC_RETURN_RESULT_OBJ    = "BUILTIN_FUNC_RETURN_RESULT"
+	BUILTIN_FUNC_RETURN_REFERENCE_OBJ = "BUILTIN_FUNC_RETURN_REFERENCE"
 )
 
 type Object interface {
@@ -59,6 +62,16 @@ func (n *Null) Inspect() string {
 
 func (n *Null) Type() ObjectType {
 	return NULL_OBJ
+}
+
+type Empty struct{}
+
+func (e *Empty) Inspect() string {
+	return "EMPTY"
+}
+
+func (e *Empty) Type() ObjectType {
+	return EMPTY_OBJ
 }
 
 type Boolean struct {
@@ -133,7 +146,12 @@ func (s *String) Inspect() string {
 	return s.Value
 }
 
-type BuiltinFunction func(args ...Object) Object
+type BuiltinFuncArgument struct {
+	Expression ast.Expression
+	Value      Object
+}
+
+type BuiltinFunction func(args ...BuiltinFuncArgument) Object
 type Builtin struct {
 	Fn BuiltinFunction
 }
@@ -166,5 +184,43 @@ func (a *Array) Inspect() string {
 	out.WriteString(strings.Join(elements, ", "))
 	out.WriteString("]")
 
+	return out.String()
+}
+
+type BuiltinFuncReturnResult struct {
+	Value Object
+}
+
+func (b *BuiltinFuncReturnResult) Type() ObjectType {
+	return BUILTIN_FUNC_RETURN_RESULT_OBJ
+}
+
+func (b *BuiltinFuncReturnResult) Inspect() string {
+	return b.Value.Inspect()
+}
+
+type BuiltinFuncReturnReference struct {
+	Expression ast.Expression
+	Value      Object
+	Result     Object
+}
+
+func (b *BuiltinFuncReturnReference) Type() ObjectType {
+	return BUILTIN_FUNC_RETURN_REFERENCE_OBJ
+}
+
+func (b *BuiltinFuncReturnReference) Inspect() string {
+	var out bytes.Buffer
+
+	out.WriteString("{")
+	out.WriteString("(")
+	out.WriteString(b.Expression.String())
+	out.WriteString("=")
+	out.WriteString(b.Value.Inspect())
+	out.WriteString("),")
+	out.WriteString("result")
+	out.WriteString("=")
+	out.WriteString(b.Result.Inspect())
+	out.WriteString("}")
 	return out.String()
 }
