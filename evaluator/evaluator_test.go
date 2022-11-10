@@ -510,7 +510,7 @@ RESIZE(array)`,
 			2,
 		},
 		{
-			"RESIZE_第2引数を指定した場合は配列のサイズを返し、",
+			"RESIZE_第2引数を指定した場合は配列のサイズを返し、配列の要素数を増やす",
 			`DIM array[] = 1, 2, 3
 RESIZE(array, 3)
 LENGTH(array)`,
