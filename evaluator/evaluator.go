@@ -58,9 +58,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, env)
 	case *ast.AssignmentExpression:
-		name := node.Identifier.Value
+		left := node.Left
 		val := Eval(node.Value, env)
-		return evalAssignExpression(name, val, env)
+		return evalAssignExpression(left, val, env)
 	case *ast.ResultStatement:
 		val := Eval(node.ResultValue, env)
 		return &object.ResultValue{
@@ -92,6 +92,11 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
 	case *ast.ArrayLiteral:
+		// 変数のみの定義
+		if len(node.Elements) == 0 {
+			return &object.Array{Elements: make([]object.Object, int(node.Index.(*ast.IntegerLiteral).Value)+1)}
+		}
+		// 初期値も存在する
 		length, ok := node.Index.(*ast.IntegerLiteral)
 		if ok {
 			if int(length.Value)+1 != len(node.Elements) {
@@ -221,6 +226,8 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
 	case left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ:
 		return evalStringInfixExpression(operator, left, right)
+	// case left.Type() == object.ARRAY_OBJ && operator == "=":
+	// 	return evalArrayInfixExpression(operator, left, right)
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
@@ -318,8 +325,30 @@ func isTruthy(obj object.Object) bool {
 	return true
 }
 
-func evalAssignExpression(name string, val object.Object, env *object.Environment) object.Object {
-	env.Set(name, val)
+func evalAssignExpression(left ast.Expression, val object.Object, env *object.Environment) object.Object {
+	switch l := left.(type) {
+	case *ast.Identifier:
+		env.Set(l.Value, val)
+	case *ast.IndexExpression:
+		ident, ok := l.Left.(*ast.Identifier)
+		if !ok {
+			return newError("dfdf")
+		}
+		array, ok := env.Get(ident.Value)
+		if !ok {
+			return newError("dfdfd")
+		}
+		oa, ok := array.(*object.Array)
+		if !ok {
+			return newError("dfdf")
+		}
+		index, ok := l.Index.(*ast.IntegerLiteral)
+		if !ok {
+			return newError("dfdf")
+		}
+		oa.Elements[int(index.Value)] = val
+		env.Set(ident.Value, oa)
+	}
 	return val
 }
 
