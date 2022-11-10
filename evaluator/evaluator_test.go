@@ -597,6 +597,13 @@ array[0] + array[1] + array[2]`,
 array[3]`,
 			nil,
 		},
+		{
+			"サイズを指定した配列の変数に後から値を代入する",
+			`DIM array[2]
+array[0] = 1
+array[0]`,
+			1,
+		},
 	}
 
 	for _, tt := range tests {

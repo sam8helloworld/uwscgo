@@ -130,7 +130,6 @@ val = 10`
 		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
 	}
 
-	// TODO: 1文目
 	dimStmt := program.Statements[0]
 	if !testDimStatement(t, dimStmt, "val") {
 		return
@@ -140,7 +139,7 @@ val = 10`
 	if !testLiteralExpression(t, val, 0) {
 		return
 	}
-	// TODO: 2文目
+
 	exStmt, ok := program.Statements[1].(*ast.ExpressionStatement)
 	if !ok {
 		t.Fatalf("program.Statements[1] is not ast.ExpressionStatement. got=%T", exStmt)
@@ -150,8 +149,8 @@ val = 10`
 	if !ok {
 		t.Fatalf("assExp is not ast.AssignmentExpression. got=%T", assExp)
 	}
-	if assExp.Identifier.TokenLiteral() != "val" {
-		t.Errorf("assStmt.Identifier.TokenLiteral() not '%s'. got=%s", "val", assExp.Identifier.TokenLiteral())
+	if assExp.Left.TokenLiteral() != "val" {
+		t.Errorf("assStmt.Left.TokenLiteral() not '%s'. got=%s", "val", assExp.Left.TokenLiteral())
 	}
 
 	value := &ast.IntegerLiteral{
@@ -1017,5 +1016,45 @@ func TestParsingIndexExpressions(t *testing.T) {
 	if !testInfixExpression(t, indexExp.Index, 1, "+", 1) {
 		return
 	}
+}
 
+func TestParsingArrayAssign(t *testing.T) {
+	input := `arr[1] = 2`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	assExp, ok := stmt.Expression.(*ast.AssignmentExpression)
+	if !ok {
+		t.Fatalf("exp not ast.AssignmentExpression. got=%T", stmt.Expression)
+	}
+
+	leftExp, ok := assExp.Left.(*ast.IndexExpression)
+	if !ok {
+		t.Fatalf("assExp.Left not ast.IndexExpression. got=%T", assExp.Left)
+	}
+
+	index, ok := leftExp.Index.(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("leftExp.Index not ast.IntegerLiteral. got=%T", leftExp.Index)
+	}
+	if index.Value != 1 {
+		t.Errorf("index.Value is not 1. got=%d", index.Value)
+	}
+
+	value, ok := assExp.Value.(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("assExp.Value not ast.IntegerLiteral. got=%T", assExp.Value)
+	}
+
+	if value.Value != 2 {
+		t.Errorf("value.Value is not 1. got=%d", index.Value)
+	}
 }
