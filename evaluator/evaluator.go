@@ -107,14 +107,25 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
 	case *ast.ArrayLiteral:
-		// 変数のみの定義
+		size := Eval(node.Index, env)
+		// 変数のみの宣言
 		if len(node.Elements) == 0 {
-			return &object.Array{Elements: make([]object.Object, int(node.Index.(*ast.IntegerLiteral).Value)+1)}
+			if size == nil {
+				return &object.Array{Elements: []object.Object{}}
+			}
+			sizeObj, ok := Eval(node.Index, env).(*object.Integer)
+			if !ok {
+				return newError("array has wrong size: %s", node.String())
+			}
+			return &object.Array{Elements: make([]object.Object, sizeObj.Value+1)}
 		}
 		// 初期値も存在する
-		length, ok := node.Index.(*ast.IntegerLiteral)
-		if ok {
-			if int(length.Value)+1 != len(node.Elements) {
+		if size != nil {
+			sizeObj, ok := Eval(node.Index, env).(*object.Integer)
+			if !ok {
+				return newError("array has wrong size: %s", node.String())
+			}
+			if len(node.Elements) != int(sizeObj.Value)+1 {
 				return newError("array has wrong size: %s", node.String())
 			}
 		}
