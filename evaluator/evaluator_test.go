@@ -503,6 +503,19 @@ func TestBuiltinFunctions(t *testing.T) {
 LENGTH(array)`,
 			3,
 		},
+		{
+			"RESIZE_第2引数を省略した場合は配列のサイズを返す",
+			`DIM array[] = 1, 2, 3
+RESIZE(array)`,
+			2,
+		},
+		{
+			"RESIZE_第2引数を指定した場合は配列のサイズを返し、",
+			`DIM array[] = 1, 2, 3
+RESIZE(array, 3)
+LENGTH(array)`,
+			4,
+		},
 	}
 
 	for _, tt := range tests {
