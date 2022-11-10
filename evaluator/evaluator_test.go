@@ -617,6 +617,12 @@ array[0] = 1
 array[0]`,
 			1,
 		},
+		{
+			"配列の初期化の際のサイズに-1を指定すると空の配列の宣言になる",
+			`DIM array[-1]
+LENGTH(array)`,
+			0,
+		},
 	}
 
 	for _, tt := range tests {
