@@ -78,6 +78,11 @@ const (
 	INT   = "INT"
 	// EXPANDABLE_STRING = "EXPANDABLE_STRING"
 	STRING = "STRING"
+
+	CALC_ADD = "CALC_ADD"
+	CALC_MIN = "CALC_MIN"
+	CALC_MAX = "CALC_MAX"
+	CALC_AVR = "CALC_AVR"
 )
 
 var reservedWords = map[string]TokenType{
@@ -96,6 +101,10 @@ var reservedWords = map[string]TokenType{
 	"FEND":      FEND,
 	"PROCEDURE": PROCEDURE,
 	"RESULT":    RESULT,
+	"CALC_ADD":  CALC_ADD,
+	"CALC_MIN":  CALC_MIN,
+	"CALC_MAX":  CALC_MAX,
+	"CALC_AVR":  CALC_AVR,
 }
 
 func LookupIdent(ident string) TokenType {
