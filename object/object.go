@@ -19,7 +19,8 @@ const (
 	ERROR_OBJ                         = "ERROR"
 	RESULT_VALUE_OBJ                  = "RESULT_VALUE"
 	STRING_OBJ                        = "STRING"
-	BUILTIN_OBJ                       = "BUILTIN"
+	BUILTIN_FUNCTION_OBJ              = "BUILTIN_FUNCTION_OBJ"
+	BUILTIN_CONSTANT_OBJ              = "BUILTIN_CONSTANT_OBJ"
 	ARRAY_OBJ                         = "ARRAY"
 	BUILTIN_FUNC_RETURN_RESULT_OBJ    = "BUILTIN_FUNC_RETURN_RESULT"
 	BUILTIN_FUNC_RETURN_REFERENCE_OBJ = "BUILTIN_FUNC_RETURN_REFERENCE"
@@ -151,17 +152,28 @@ type BuiltinFuncArgument struct {
 	Value      Object
 }
 
-type BuiltinFunction func(args ...BuiltinFuncArgument) Object
-type Builtin struct {
-	Fn BuiltinFunction
+type BuiltinFunction struct {
+	Fn func(args ...BuiltinFuncArgument) Object
 }
 
-func (b *Builtin) Type() ObjectType {
-	return BUILTIN_OBJ
+func (bf *BuiltinFunction) Type() ObjectType {
+	return BUILTIN_FUNCTION_OBJ
 }
 
-func (b *Builtin) Inspect() string {
+func (bf *BuiltinFunction) Inspect() string {
 	return "builtin function"
+}
+
+type BuiltinConstant struct {
+	Value Object
+}
+
+func (bc *BuiltinConstant) Type() ObjectType {
+	return BUILTIN_CONSTANT_OBJ
+}
+
+func (bc *BuiltinConstant) Inspect() string {
+	return "builtin constant"
 }
 
 type Array struct {

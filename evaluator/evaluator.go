@@ -95,7 +95,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		switch fn := function.(type) {
 		case *object.Function:
 			return applyFunction(fn, args)
-		case *object.Builtin:
+		case *object.BuiltinFunction:
 			argss := []object.BuiltinFuncArgument{}
 			for i, arg := range args {
 				argss = append(argss, object.BuiltinFuncArgument{
@@ -157,7 +157,7 @@ func applyFunction(fn *object.Function, args []object.Object) object.Object {
 	return unwrapReturnValue(evaluated)
 }
 
-func applyBuiltinFunction(fn *object.Builtin, args []object.BuiltinFuncArgument, env *object.Environment) object.Object {
+func applyBuiltinFunction(fn *object.BuiltinFunction, args []object.BuiltinFuncArgument, env *object.Environment) object.Object {
 	result := fn.Fn(args...)
 	switch r := result.(type) {
 	case *object.BuiltinFuncReturnResult:
