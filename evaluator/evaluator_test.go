@@ -528,6 +528,12 @@ LENGTH(array)`,
 CALCARRAY(array, CALC_ADD)`,
 			6,
 		},
+		{
+			"CALCARRAY_第2引数にCALC_MINを指定して要素同士を加算する",
+			`DIM array[] = 3, 2, 1, 0, -5
+CALCARRAY(array, CALC_MIN)`,
+			-5,
+		},
 	}
 
 	for _, tt := range tests {
