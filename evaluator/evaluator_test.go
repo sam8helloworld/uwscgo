@@ -522,6 +522,12 @@ RESIZE(array, 3)
 LENGTH(array)`,
 			4,
 		},
+		{
+			"CALCARRAY_第2引数にCALC_ADDを指定して要素同士を加算する",
+			`DIM array[] = 1, 2, 3
+CALCARRAY(array, CALC_ADD)`,
+			6,
+		},
 	}
 
 	for _, tt := range tests {
