@@ -83,23 +83,29 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 	return true
 }
 
-func TestDimStatements(t *testing.T) {
+func TestDeclarationStatements(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
 		expected int64
 	}{
 		{
-			"整数の変数定義(1つ)",
+			"整数の変数宣言ができる",
 			`DIM val = 5
 val`,
 			5,
 		},
 		{
-			"整数の変数を整数の変数に代入",
+			"整数の変数を整数の変数に代入できる",
 			`DIM valA = 5
 DIM valB = valA
 valB`,
+			5,
+		},
+		{
+			"整数の定数宣言ができる",
+			`CONST val = 5
+val`,
 			5,
 		},
 	}
