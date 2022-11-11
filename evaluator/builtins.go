@@ -117,6 +117,26 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 						},
 					}
 				}
+				if cons.Value.(*object.String).Value == "CALC_MAX" {
+					var max int64
+					for i, el := range array.Elements {
+						v, ok := el.(*object.Integer)
+						if !ok {
+							return newError("array of argument 1 has not integer element. array[%d]=%q", i, v)
+						}
+						if i == 0 {
+							max = v.Value
+						}
+						if v.Value > max {
+							max = v.Value
+						}
+					}
+					return &object.BuiltinFuncReturnResult{
+						Value: &object.Integer{
+							Value: max,
+						},
+					}
+				}
 			}
 			return newError("wrong number of arguments. got=%d, want=1", len(args))
 		},
