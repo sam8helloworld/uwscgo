@@ -113,6 +113,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.DIM:
 		return p.parseDimStatement()
+	case token.CONST:
+		return p.parseConstStatement()
 	case token.IF:
 		return p.parseIfStatement()
 	case token.IFB:
@@ -130,6 +132,34 @@ func (p *Parser) parseStatement() ast.Statement {
 
 func (p *Parser) parseDimStatement() *ast.DimStatement {
 	stmt := &ast.DimStatement{Token: p.curToken}
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	// 配列の場合
+	if p.peekTokenIs(token.LEFT_SQUARE_BRACKET) {
+		p.nextToken()
+		stmt.Value = p.parseArrayLiteral()
+	} else {
+		if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
+			return nil
+		}
+
+		p.nextToken()
+
+		stmt.Value = p.parseExpression(LOWEST, false)
+
+		if p.peekTokenIs(token.EOL) {
+			p.nextToken()
+		}
+	}
+	return stmt
+}
+
+func (p *Parser) parseConstStatement() *ast.ConstStatement {
+	stmt := &ast.ConstStatement{Token: p.curToken}
 	if !p.expectPeek(token.IDENT) {
 		return nil
 	}

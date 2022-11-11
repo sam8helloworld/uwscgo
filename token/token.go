@@ -27,6 +27,7 @@ const (
 
 	DIM    = "DIM"
 	PUBLIC = "PUBLIC"
+	CONST  = "CONST"
 
 	TRUE  = "TRUE"
 	FALSE = "FALSE"
@@ -88,6 +89,7 @@ const (
 var reservedWords = map[string]TokenType{
 	"DIM":       DIM,
 	"PUBLIC":    PUBLIC,
+	"CONST":     CONST,
 	"TRUE":      TRUE,
 	"FALSE":     FALSE,
 	"MOD":       MOD,
