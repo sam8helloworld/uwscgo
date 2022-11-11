@@ -529,10 +529,16 @@ CALCARRAY(array, CALC_ADD)`,
 			6,
 		},
 		{
-			"CALCARRAY_第2引数にCALC_MINを指定して要素同士を加算する",
+			"CALCARRAY_第2引数にCALC_MINを指定して要素の中の最小値を求める",
 			`DIM array[] = 3, 2, 1, 0, -5
 CALCARRAY(array, CALC_MIN)`,
 			-5,
+		},
+		{
+			"CALCARRAY_第2引数にCALC_MAXを指定して要素の中の最大値を求める",
+			`DIM array[] = 3, 2, 1, 0, -5
+CALCARRAY(array, CALC_MAX)`,
+			3,
 		},
 	}
 
