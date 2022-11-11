@@ -75,6 +75,70 @@ func testDimStatement(t *testing.T, s ast.Statement, name string) bool {
 	return true
 }
 
+func TestConstStatements(t *testing.T) {
+	tests := []struct {
+		name               string
+		input              string
+		expectedIdentifier string
+		expectedValue      interface{}
+	}{
+		{
+			"整数の定数宣言",
+			"CONST VAL = 5",
+			"VAL",
+			5,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.NewLexer(tt.input)
+			p := parser.NewParser(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			if len(program.Statements) != 1 {
+				t.Fatalf("program.Statements does not contain 1 statements. got=%d", len(program.Statements))
+			}
+
+			stmt := program.Statements[0]
+			if !testConstStatement(t, stmt, tt.expectedIdentifier) {
+				return
+			}
+
+			val := stmt.(*ast.ConstStatement).Value
+			if !testLiteralExpression(t, val, tt.expectedValue) {
+				return
+			}
+		})
+	}
+}
+
+func testConstStatement(t *testing.T, s ast.Statement, name string) bool {
+	if s.TokenLiteral() != "CONST" {
+		t.Errorf("s.TokenLiteral() not 'CONST'. got=%q", s.TokenLiteral())
+		return false
+	}
+
+	constStmt, ok := s.(*ast.ConstStatement)
+	if !ok {
+		t.Errorf("s not *ast.ConstStatement. got=%T", s)
+		return false
+	}
+
+	if constStmt.Name.Value != name {
+		t.Errorf("constStmt.Name.Value not '%s'. got=%s", name, constStmt.Name.Value)
+		return false
+	}
+
+	if constStmt.Name.TokenLiteral() != name {
+		t.Errorf("constStmt.Name.TokenLiteral() not '%s'. got=%s", name, constStmt.Name.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
 func checkParserErrors(t *testing.T, p *parser.Parser) {
 	errors := p.Errors()
 	if len(errors) == 0 {
