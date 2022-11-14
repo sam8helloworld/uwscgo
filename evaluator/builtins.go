@@ -86,10 +86,16 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 				to := int64(len(array.Elements) - 1)
 				if len(args) >= 3 {
 					fromArg, ok := args[2].Value.(*object.Integer)
-					if !ok {
-						return newError("argument 3 to `CALCARRAY` not supported, got %s", args[2].Value.Type())
+					if ok {
+						from = fromArg.Value
+					} else {
+						_, ok := args[2].Value.(*object.Empty)
+						if ok {
+							from = 0
+						} else {
+							return newError("argument 3 to `CALCARRAY` not supported, got %s", args[2].Value.Type())
+						}
 					}
-					from = fromArg.Value
 					if len(args) == 4 {
 						toArg, ok := args[3].Value.(*object.Integer)
 						if !ok {

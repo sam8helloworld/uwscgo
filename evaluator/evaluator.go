@@ -37,6 +37,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		env.SetConst(node.Name.Value, val)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+	case *ast.EmptyArgument:
+		return EMPTY
 	case *ast.PrefixExpression:
 		right := Eval(node.Right, env)
 		if isError(right) {
