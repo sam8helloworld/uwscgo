@@ -73,7 +73,7 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 	},
 	"CALCARRAY": {
 		Fn: func(args ...object.BuiltinFuncArgument) object.Object {
-			if len(args) == 2 {
+			if len(args) >= 2 {
 				array, ok := args[0].Value.(*object.Array)
 				if !ok {
 					return newError("argument 1 to `CALCARRAY` not supported, got %s", args[0].Value.Type())
@@ -82,10 +82,27 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 				if !ok {
 					return newError("argument 2 to `CALCARRAY` not supported, got %s", args[1].Value.Type())
 				}
+				from := int64(0)
+				to := int64(len(array.Elements) - 1)
+				if len(args) >= 3 {
+					fromArg, ok := args[2].Value.(*object.Integer)
+					if !ok {
+						return newError("argument 3 to `CALCARRAY` not supported, got %s", args[2].Value.Type())
+					}
+					from = fromArg.Value
+					if len(args) == 4 {
+						toArg, ok := args[3].Value.(*object.Integer)
+						if !ok {
+							return newError("argument 4 to `CALCARRAY` not supported, got %s", args[3].Value.Type())
+						}
+						to = toArg.Value
+					}
+				}
+
 				if cons.Value.(*object.String).Value == "CALC_ADD" {
 					var sum int64
-					for i, el := range array.Elements {
-						v, ok := el.(*object.Integer)
+					for i := from; i <= to; i++ {
+						v, ok := array.Elements[i].(*object.Integer)
 						if !ok {
 							return newError("array of argument 1 has not integer element. array[%d]=%q", i, v)
 						}
@@ -99,8 +116,8 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 				}
 				if cons.Value.(*object.String).Value == "CALC_MIN" {
 					var min int64
-					for i, el := range array.Elements {
-						v, ok := el.(*object.Integer)
+					for i := from; i <= to; i++ {
+						v, ok := array.Elements[i].(*object.Integer)
 						if !ok {
 							return newError("array of argument 1 has not integer element. array[%d]=%q", i, v)
 						}
@@ -119,8 +136,8 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 				}
 				if cons.Value.(*object.String).Value == "CALC_MAX" {
 					var max int64
-					for i, el := range array.Elements {
-						v, ok := el.(*object.Integer)
+					for i := from; i <= to; i++ {
+						v, ok := array.Elements[i].(*object.Integer)
 						if !ok {
 							return newError("array of argument 1 has not integer element. array[%d]=%q", i, v)
 						}
@@ -138,6 +155,7 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 					}
 				}
 			}
+			// TODO: CALC_AVRによる平均値を求める処理
 			return newError("wrong number of arguments. got=%d, want=1", len(args))
 		},
 	},
