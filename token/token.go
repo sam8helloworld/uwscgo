@@ -29,6 +29,8 @@ const (
 	PUBLIC = "PUBLIC"
 	CONST  = "CONST"
 
+	HASHTBL = "HASHTBL"
+
 	TRUE  = "TRUE"
 	FALSE = "FALSE"
 
@@ -85,6 +87,7 @@ var reservedWords = map[string]TokenType{
 	"DIM":       DIM,
 	"PUBLIC":    PUBLIC,
 	"CONST":     CONST,
+	"HASHTBL":   HASHTBL,
 	"TRUE":      TRUE,
 	"FALSE":     FALSE,
 	"MOD":       MOD,
