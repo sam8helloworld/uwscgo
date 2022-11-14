@@ -540,6 +540,24 @@ CALCARRAY(array, CALC_MIN)`,
 CALCARRAY(array, CALC_MAX)`,
 			3,
 		},
+		{
+			"CALCARRAY_第3引数にのみ計算開始位置を指定する",
+			`DIM array[] = 1, 2, 3, 4, 5
+CALCARRAY(array, CALC_ADD, 2)`,
+			12,
+		},
+		{
+			"CALCARRAY_第4引数にのみ計算終了位置を指定する",
+			`DIM array[] = 1, 2, 3, 4, 5
+CALCARRAY(array, CALC_ADD, ,2)`,
+			6,
+		},
+		{
+			"CALCARRAY_第3引数に計算開始位置を4引数に計算終了位置を指定する",
+			`DIM array[] = 1, 2, 3, 4, 5
+CALCARRAY(array, CALC_ADD, 2, 3)`,
+			7,
+		},
 	}
 
 	for _, tt := range tests {
