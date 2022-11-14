@@ -73,6 +73,32 @@ func (ds *DimStatement) String() string {
 	return out.String()
 }
 
+type ConstStatement struct {
+	Token token.Token
+	Name  *Identifier
+	Value Expression
+}
+
+func (cs *ConstStatement) statementNode() {}
+
+func (cs *ConstStatement) TokenLiteral() string {
+	return cs.Token.Literal
+}
+
+func (cs *ConstStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(cs.TokenLiteral() + " ")
+	out.WriteString(cs.Name.String())
+	out.WriteString(" = ")
+
+	if cs.Value != nil {
+		out.WriteString(cs.Value.String())
+	}
+
+	return out.String()
+}
+
 type ExpressionStatement struct {
 	Token token.Token // 式の最初のトークン
 	Expression
@@ -411,4 +437,16 @@ func (ie *IndexExpression) String() string {
 	out.WriteString(ie.Index.String())
 	out.WriteString("])")
 	return out.String()
+}
+
+type EmptyArgument struct {
+	Token token.Token
+}
+
+func (ea *EmptyArgument) expressionNode() {}
+func (ea *EmptyArgument) TokenLiteral() string {
+	return ea.Token.Literal
+}
+func (ea *EmptyArgument) String() string {
+	return ea.Token.Literal
 }

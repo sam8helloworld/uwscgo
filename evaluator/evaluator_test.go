@@ -83,23 +83,29 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 	return true
 }
 
-func TestDimStatements(t *testing.T) {
+func TestDeclarationStatements(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
 		expected int64
 	}{
 		{
-			"整数の変数定義(1つ)",
+			"整数の変数宣言ができる",
 			`DIM val = 5
 val`,
 			5,
 		},
 		{
-			"整数の変数を整数の変数に代入",
+			"整数の変数を整数の変数に代入できる",
 			`DIM valA = 5
 DIM valB = valA
 valB`,
+			5,
+		},
+		{
+			"整数の定数宣言ができる",
+			`CONST val = 5
+val`,
 			5,
 		},
 	}
@@ -515,6 +521,42 @@ RESIZE(array)`,
 RESIZE(array, 3)
 LENGTH(array)`,
 			4,
+		},
+		{
+			"CALCARRAY_第2引数にCALC_ADDを指定して要素同士を加算する",
+			`DIM array[] = 1, 2, 3
+CALCARRAY(array, CALC_ADD)`,
+			6,
+		},
+		{
+			"CALCARRAY_第2引数にCALC_MINを指定して要素の中の最小値を求める",
+			`DIM array[] = 3, 2, 1, 0, -5
+CALCARRAY(array, CALC_MIN)`,
+			-5,
+		},
+		{
+			"CALCARRAY_第2引数にCALC_MAXを指定して要素の中の最大値を求める",
+			`DIM array[] = 3, 2, 1, 0, -5
+CALCARRAY(array, CALC_MAX)`,
+			3,
+		},
+		{
+			"CALCARRAY_第3引数にのみ計算開始位置を指定する",
+			`DIM array[] = 1, 2, 3, 4, 5
+CALCARRAY(array, CALC_ADD, 2)`,
+			12,
+		},
+		{
+			"CALCARRAY_第4引数にのみ計算終了位置を指定する",
+			`DIM array[] = 1, 2, 3, 4, 5
+CALCARRAY(array, CALC_ADD, ,2)`,
+			6,
+		},
+		{
+			"CALCARRAY_第3引数に計算開始位置を4引数に計算終了位置を指定する",
+			`DIM array[] = 1, 2, 3, 4, 5
+CALCARRAY(array, CALC_ADD, 2, 3)`,
+			7,
 		},
 	}
 

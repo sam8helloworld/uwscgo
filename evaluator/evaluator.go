@@ -32,8 +32,13 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.DimStatement:
 		val := Eval(node.Value, env)
 		env.Set(node.Name.Value, val)
+	case *ast.ConstStatement:
+		val := Eval(node.Value, env)
+		env.SetConst(node.Name.Value, val)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+	case *ast.EmptyArgument:
+		return EMPTY
 	case *ast.PrefixExpression:
 		right := Eval(node.Right, env)
 		if isError(right) {
@@ -92,7 +97,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		switch fn := function.(type) {
 		case *object.Function:
 			return applyFunction(fn, args)
-		case *object.Builtin:
+		case *object.BuiltinFunction:
 			argss := []object.BuiltinFuncArgument{}
 			for i, arg := range args {
 				argss = append(argss, object.BuiltinFuncArgument{
@@ -154,7 +159,7 @@ func applyFunction(fn *object.Function, args []object.Object) object.Object {
 	return unwrapReturnValue(evaluated)
 }
 
-func applyBuiltinFunction(fn *object.Builtin, args []object.BuiltinFuncArgument, env *object.Environment) object.Object {
+func applyBuiltinFunction(fn *object.BuiltinFunction, args []object.BuiltinFuncArgument, env *object.Environment) object.Object {
 	result := fn.Fn(args...)
 	switch r := result.(type) {
 	case *object.BuiltinFuncReturnResult:
@@ -225,7 +230,6 @@ func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object
 	if val, ok := env.Get(node.Value); ok {
 		return val
 	}
-
 	if builtin, ok := builtin(node.Value); ok {
 		return builtin
 	}
