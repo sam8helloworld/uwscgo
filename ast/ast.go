@@ -438,3 +438,15 @@ func (ie *IndexExpression) String() string {
 	out.WriteString("])")
 	return out.String()
 }
+
+type EmptyArgument struct {
+	Token token.Token
+}
+
+func (ea *EmptyArgument) expressionNode() {}
+func (ea *EmptyArgument) TokenLiteral() string {
+	return ea.Token.Literal
+}
+func (ea *EmptyArgument) String() string {
+	return ea.Token.Literal
+}
