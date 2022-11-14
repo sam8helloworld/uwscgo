@@ -115,6 +115,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseDimStatement()
 	case token.CONST:
 		return p.parseConstStatement()
+	case token.HASHTBL:
+		return p.parseHashTableStatement()
 	case token.IF:
 		return p.parseIfStatement()
 	case token.IFB:
@@ -183,6 +185,29 @@ func (p *Parser) parseConstStatement() *ast.ConstStatement {
 			p.nextToken()
 		}
 	}
+	return stmt
+}
+
+func (p *Parser) parseHashTableStatement() *ast.HashTableStatement {
+	stmt := &ast.HashTableStatement{Token: p.curToken}
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+
+	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
+		return nil
+	}
+
+	p.nextToken()
+
+	stmt.Value = p.parseExpression(LOWEST, false)
+
+	if p.peekTokenIs(token.EOL) {
+		p.nextToken()
+	}
+
 	return stmt
 }
 
