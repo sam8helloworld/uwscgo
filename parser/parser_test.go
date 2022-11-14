@@ -1159,3 +1159,26 @@ func TestParsingArrayAssign(t *testing.T) {
 		t.Errorf("value.Value is not 1. got=%d", index.Value)
 	}
 }
+
+func TestHashTableStatement(t *testing.T) {
+	input := `HASHTBL val = HASH_CASECARE`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.HashTableStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.HashTableStatement. got=%T", program.Statements[0])
+	}
+
+	if stmt.Name.Value != "val" {
+		t.Errorf("stmt.Name.Value is not val. got=%s", stmt.Name.Value)
+	}
+
+	val := stmt.Value
+	if !testIdentifier(t, val, "HASH_CASECARE") {
+		return
+	}
+}

@@ -243,6 +243,30 @@ func (rs *ResultStatement) String() string {
 	return rs.Token.Literal
 }
 
+type HashTableStatement struct {
+	Token token.Token
+	Name  *Identifier
+	Value Expression
+}
+
+func (hts *HashTableStatement) statementNode() {}
+func (hts *HashTableStatement) TokenLiteral() string {
+	return hts.Token.Literal
+}
+func (hts *HashTableStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(hts.TokenLiteral() + " ")
+	out.WriteString(hts.Name.String())
+	out.WriteString(" = ")
+
+	if hts.Value != nil {
+		out.WriteString(hts.Value.String())
+	}
+
+	return out.String()
+}
+
 /////////////// Expression
 type Identifier struct {
 	Token token.Token // token.IDENT
