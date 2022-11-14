@@ -567,7 +567,7 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	p.nextToken()
 
 	args = append(args, p.parseExpression(LOWEST, false))
-	fmt.Println(p.curToken)
+
 	for p.peekTokenIs(token.COMMA) {
 		p.nextToken()
 		// カンマが連続
