@@ -385,17 +385,17 @@ func evalAssignExpression(left ast.Expression, val object.Object, env *object.En
 	case *ast.IndexExpression:
 		ident, ok := l.Left.(*ast.Identifier)
 		if !ok {
-			return newError("dfdf")
+			return newError("index expression left should be identifier: %s", l.Left.String())
 		}
 		aoh, ok := env.Get(ident.Value)
 		if !ok {
-			return newError("dfdfd")
+			return newError("identifier is not defined: %s", ident.String())
 		}
 		switch aoh := aoh.(type) {
 		case *object.Array:
 			index, ok := l.Index.(*ast.IntegerLiteral)
 			if !ok {
-				return newError("")
+				return newError("index sholud be integer: %s", l.Index.String())
 			}
 			aoh.Elements[int(index.Value)] = val
 			env.Set(ident.Value, aoh)
@@ -411,7 +411,7 @@ func evalAssignExpression(left ast.Expression, val object.Object, env *object.En
 			}
 			return aoh
 		default:
-			return newError("")
+			return newError("index should be with array or hash: %s", l.Left.String())
 		}
 	}
 	return val
