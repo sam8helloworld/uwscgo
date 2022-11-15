@@ -670,6 +670,12 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 	p.nextToken()
 	exp.Index = p.parseExpression(LOWEST, false)
 
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		exp.Option = p.parseExpression(LOWEST, false)
+	}
+
 	if !p.expectPeek(token.RIGHT_SQUARE_BRACKET) {
 		return nil
 	}
