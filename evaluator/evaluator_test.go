@@ -108,6 +108,13 @@ valB`,
 val`,
 			5,
 		},
+		{
+			"連想配列の宣言ができる",
+			`HASHTBL val
+val["key"] = 5
+val`,
+			5,
+		},
 	}
 
 	for _, tt := range tests {
