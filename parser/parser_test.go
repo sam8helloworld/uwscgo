@@ -24,6 +24,12 @@ func TestDimStatements(t *testing.T) {
 			"val",
 			5,
 		},
+		{
+			"整数の変数定義",
+			"DIM val",
+			"val",
+			nil,
+		},
 	}
 
 	for _, tt := range tests {
@@ -299,6 +305,12 @@ func testLiteralExpression(
 		return testIdentifier(t, exp, v)
 	case bool:
 		return testBooleanLiteral(t, exp, v)
+	case nil:
+		if _, ok := exp.(*ast.Empty); !ok {
+			t.Errorf("exp not *ast.Empty. got=%T", exp)
+			return false
+		}
+		return true
 	}
 	t.Errorf("type of exp not handled. got=%T", exp)
 	return false
@@ -1191,24 +1203,55 @@ func TestParsingArrayAssign(t *testing.T) {
 }
 
 func TestHashTableStatement(t *testing.T) {
-	input := `HASHTBL val = HASH_CASECARE`
-
-	l := lexer.NewLexer(input)
-	p := parser.NewParser(l)
-	program := p.ParseProgram()
-	checkParserErrors(t, p)
-
-	stmt, ok := program.Statements[0].(*ast.HashTableStatement)
-	if !ok {
-		t.Fatalf("stmt not ast.HashTableStatement. got=%T", program.Statements[0])
+	tests := []struct {
+		name               string
+		input              string
+		expectedIdentifier string
+		expectedValue      interface{}
+	}{
+		{
+			"オプション付きで連想配列を宣言する",
+			`HASHTBL val = HASH_CASECARE`,
+			"val",
+			"HASH_CASECARE",
+		},
+		{
+			"空の連想配列を宣言する",
+			`HASHTBL val`,
+			"val",
+			nil,
+		},
 	}
 
-	if stmt.Name.Value != "val" {
-		t.Errorf("stmt.Name.Value is not val. got=%s", stmt.Name.Value)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.NewLexer(tt.input)
+			p := parser.NewParser(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
 
-	val := stmt.Value
-	if !testIdentifier(t, val, "HASH_CASECARE") {
-		return
+			stmt, ok := program.Statements[0].(*ast.HashTableStatement)
+			if !ok {
+				t.Fatalf("stmt not ast.HashTableStatement. got=%T", program.Statements[0])
+			}
+
+			if stmt.Name.Value != tt.expectedIdentifier {
+				t.Errorf("stmt.Name.Value is not val. got=%s", stmt.Name.Value)
+			}
+
+			val := stmt.Value
+			switch tt.expectedValue.(type) {
+			case string:
+				if !testIdentifier(t, val, "HASH_CASECARE") {
+					return
+				}
+			case nil:
+				if _, ok := val.(*ast.Empty); !ok {
+					t.Errorf("val not *ast.Empty. got=%T", val)
+					return
+				}
+				return
+			}
+		})
 	}
 }

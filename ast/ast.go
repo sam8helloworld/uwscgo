@@ -475,3 +475,15 @@ func (ea *EmptyArgument) TokenLiteral() string {
 func (ea *EmptyArgument) String() string {
 	return ea.Token.Literal
 }
+
+type Empty struct {
+	Token token.Token
+}
+
+func (e *Empty) expressionNode() {}
+func (e *Empty) TokenLiteral() string {
+	return e.Token.Literal
+}
+func (e *Empty) String() string {
+	return e.Token.Literal
+}

@@ -145,6 +145,13 @@ func (p *Parser) parseDimStatement() *ast.DimStatement {
 		p.nextToken()
 		stmt.Value = p.parseArrayLiteral()
 	} else {
+		if !p.peekTokenIs(token.EQUAL_OR_ASSIGN) {
+			stmt.Value = &ast.Empty{}
+			if p.peekTokenIs(token.EOL) {
+				p.nextToken()
+			}
+			return stmt
+		}
 		if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
 			return nil
 		}
@@ -195,6 +202,14 @@ func (p *Parser) parseHashTableStatement() *ast.HashTableStatement {
 	}
 
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	if !p.peekTokenIs(token.EQUAL_OR_ASSIGN) {
+		stmt.Value = &ast.Empty{}
+		if p.peekTokenIs(token.EOL) {
+			p.nextToken()
+		}
+		return stmt
+	}
 
 	if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
 		return nil
