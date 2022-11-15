@@ -39,14 +39,14 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		val := Eval(node.Value, env)
 		cons, ok := val.(*object.BuiltinConstant)
 		if !ok {
-			return newError("")
+			return newError("unknown hash declare: %s", node.Value.String())
 		}
 		var casecare bool = false
 		var sort bool = false
-		if cons.Value.(*object.String).Value == "HASH_CASECARE" {
+		if cons.T == HASH_CASECARE {
 			casecare = true
 		}
-		if cons.Value.(*object.String).Value == "HASH_SORT" {
+		if cons.T == HASH_SORT {
 			sort = true
 		}
 		env.Set(node.Name.Value, &object.HashTable{

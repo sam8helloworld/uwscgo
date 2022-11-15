@@ -105,7 +105,7 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 					}
 				}
 
-				if cons.Value.(*object.String).Value == "CALC_ADD" {
+				if cons.T == CALC_ADD {
 					var sum int64
 					for i := from; i <= to; i++ {
 						v, ok := array.Elements[i].(*object.Integer)
@@ -120,7 +120,7 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 						},
 					}
 				}
-				if cons.Value.(*object.String).Value == "CALC_MIN" {
+				if cons.T == CALC_MIN {
 					var min int64
 					for i := from; i <= to; i++ {
 						v, ok := array.Elements[i].(*object.Integer)
@@ -140,7 +140,7 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 						},
 					}
 				}
-				if cons.Value.(*object.String).Value == "CALC_MAX" {
+				if cons.T == CALC_MAX {
 					var max int64
 					for i := from; i <= to; i++ {
 						v, ok := array.Elements[i].(*object.Integer)
@@ -167,42 +167,57 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 	},
 }
 
-var builtinConstants = map[string]object.Object{
-	"CALC_ADD": &object.BuiltinConstant{
-		Value: &object.String{
-			Value: "CALC_ADD",
+const (
+	CALC_ADD      = object.BuiltinConstantType("CALC_ADD")
+	CALC_MIN      = object.BuiltinConstantType("CALC_MIN")
+	CALC_MAX      = object.BuiltinConstantType("CALC_MAX")
+	CALC_AVR      = object.BuiltinConstantType("CALC_AVR")
+	HASH_CASECARE = object.BuiltinConstantType("HASH_CASECARE")
+	HASH_SORT     = object.BuiltinConstantType("HASH_SORT")
+)
+
+var builtinConstants = map[object.BuiltinConstantType]object.Object{
+	CALC_ADD: &object.BuiltinConstant{
+		T: CALC_ADD,
+		Value: &object.Integer{
+			Value: 1,
 		},
 	},
-	"CALC_MIN": &object.BuiltinConstant{
-		Value: &object.String{
-			Value: "CALC_MIN",
+	CALC_MIN: &object.BuiltinConstant{
+		T: CALC_MIN,
+		Value: &object.Integer{
+			Value: 2,
 		},
 	},
-	"CALC_MAX": &object.BuiltinConstant{
-		Value: &object.String{
-			Value: "CALC_MAX",
+	CALC_MAX: &object.BuiltinConstant{
+		T: CALC_MAX,
+		Value: &object.Integer{
+			Value: 3,
 		},
 	},
-	"CALC_AVR": &object.BuiltinConstant{
-		Value: &object.String{
-			Value: "CALC_AVR",
+	CALC_AVR: &object.BuiltinConstant{
+		T: CALC_AVR,
+		Value: &object.Integer{
+			Value: 4,
 		},
 	},
-	"HASH_CASECARE": &object.BuiltinConstant{
-		Value: &object.String{
-			Value: "HASH_CASECARE",
+	HASH_CASECARE: &object.BuiltinConstant{
+		T: HASH_CASECARE,
+		Value: &object.Integer{
+			Value: 4096,
 		},
 	},
-	"HASH_SORT": &object.BuiltinConstant{
-		Value: &object.String{
-			Value: "HASH_SORT",
+	HASH_SORT: &object.BuiltinConstant{
+		T: HASH_SORT,
+		Value: &object.Integer{
+			Value: 8192,
 		},
 	},
 }
 
 func builtin(key string) (object.Object, bool) {
 	k := strings.ToUpper(key)
-	if result, ok := builtinConstants[k]; ok {
+	if result, ok := builtinConstants[object.BuiltinConstantType(k)]; ok {
 		return result, ok
 	}
 	if result, ok := builtinFunctions[k]; ok {

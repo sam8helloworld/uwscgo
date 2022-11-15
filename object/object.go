@@ -166,7 +166,10 @@ func (bf *BuiltinFunction) Inspect() string {
 	return "builtin function"
 }
 
+type BuiltinConstantType string
+
 type BuiltinConstant struct {
+	T     BuiltinConstantType
 	Value Object
 }
 
