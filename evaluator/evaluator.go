@@ -37,23 +37,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		env.SetConst(node.Name.Value, val)
 	case *ast.HashTableStatement:
 		val := Eval(node.Value, env)
-		cons, ok := val.(*object.BuiltinConstant)
-		if !ok {
-			return newError("unknown hash declare: %s", node.Value.String())
-		}
-		var casecare bool = false
-		var sort bool = false
-		if cons.T == HASH_CASECARE {
-			casecare = true
-		}
-		if cons.T == HASH_SORT {
-			sort = true
-		}
-		env.Set(node.Name.Value, &object.HashTable{
-			Pairs:    map[object.HashKey]object.HashPair{},
-			Casecare: casecare,
-			Sort:     sort,
-		})
+		evalHashTableStatement(node.Name.Value, val, env)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.EmptyArgument:
@@ -481,7 +465,7 @@ func evalHashTableIndexExpression(hash, index, opt object.Object) object.Object 
 	if opt != nil {
 		opt, ok := opt.(*object.BuiltinConstant)
 		if !ok {
-			return newError("")
+			return newError("option should be builtin constant: %s", opt.Value.Inspect())
 		}
 		if opt.T == HASH_EXISTS {
 			_, ok := hashObject.Pairs[key.HashKey()]
@@ -497,4 +481,24 @@ func evalHashTableIndexExpression(hash, index, opt object.Object) object.Object 
 	}
 
 	return pair.Value
+}
+
+func evalHashTableStatement(name string, value object.Object, env *object.Environment) object.Object {
+	cons, ok := value.(*object.BuiltinConstant)
+	if !ok {
+		return newError("unknown hash declare: %s", value.Inspect())
+	}
+	var casecare bool = false
+	var sort bool = false
+	if cons.T == HASH_CASECARE {
+		casecare = true
+	}
+	if cons.T == HASH_SORT {
+		sort = true
+	}
+	return env.Set(name, &object.HashTable{
+		Pairs:    map[object.HashKey]object.HashPair{},
+		Casecare: casecare,
+		Sort:     sort,
+	})
 }
