@@ -693,15 +693,31 @@ hash["key"] = 5
 hash["key"]`,
 			5,
 		},
+		{
+			"連想配列のキーの存在確認をしてあればtrueを返す",
+			`HASHTBL hash = HASH_CASECARE
+hash["key"] = 5
+hash["key", HASH_EXISTS]`,
+			true,
+		},
+		{
+			"連想配列のキーの存在確認をしてなければfalseを返す",
+			`HASHTBL hash = HASH_CASECARE
+hash["key"] = 5
+hash["key_non", HASH_EXISTS]`,
+			false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			evaluated := testEval(tt.input)
-			integer, ok := tt.expected.(int)
-			if ok {
-				testIntegerObject(t, evaluated, int64(integer))
-			} else {
+			switch expected := tt.expected.(type) {
+			case int:
+				testIntegerObject(t, evaluated, int64(expected))
+			case bool:
+				testBoolenObject(t, evaluated, expected)
+			default:
 				testNullObject(t, evaluated)
 			}
 		})
