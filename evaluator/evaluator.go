@@ -37,23 +37,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		env.SetConst(node.Name.Value, val)
 	case *ast.HashTableStatement:
 		val := Eval(node.Value, env)
-		cons, ok := val.(*object.BuiltinConstant)
-		if !ok {
-			return newError("unknown hash declare: %s", node.Value.String())
-		}
-		var casecare bool = false
-		var sort bool = false
-		if cons.T == HASH_CASECARE {
-			casecare = true
-		}
-		if cons.T == HASH_SORT {
-			sort = true
-		}
-		env.Set(node.Name.Value, &object.HashTable{
-			Pairs:    map[object.HashKey]object.HashPair{},
-			Casecare: casecare,
-			Sort:     sort,
-		})
+		evalHashTableStatement(node.Name.Value, val, env)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.EmptyArgument:
@@ -167,7 +151,11 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(index) {
 			return index
 		}
-		return evalIndexExpression(left, index)
+		var opt object.Object
+		if node.Option != nil {
+			opt = Eval(node.Option, env)
+		}
+		return evalIndexExpression(left, index, opt)
 	}
 	return nil
 }
@@ -444,12 +432,12 @@ func evalStringInfixExpression(operator string, left, right object.Object) objec
 	return &object.String{Value: leftVal + rightVal}
 }
 
-func evalIndexExpression(left, index object.Object) object.Object {
+func evalIndexExpression(left, index, opt object.Object) object.Object {
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 		return evalArrayIndexExpression(left, index)
 	case left.Type() == object.HASHTBL_OBJ:
-		return evalHashTableIndexExpression(left, index)
+		return evalHashTableIndexExpression(left, index, opt)
 	default:
 		return newError("index operator not supported: %s", left.Type())
 	}
@@ -466,12 +454,25 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 	return arrayObject.Elements[idx]
 }
 
-func evalHashTableIndexExpression(hash, index object.Object) object.Object {
+func evalHashTableIndexExpression(hash, index, opt object.Object) object.Object {
 	hashObject := hash.(*object.HashTable)
 
 	key, ok := index.(object.Hashable)
 	if !ok {
 		return newError("unusable as hash key: %s", index.Type())
+	}
+
+	if opt != nil {
+		opt, ok := opt.(*object.BuiltinConstant)
+		if !ok {
+			return newError("option should be builtin constant: %s", opt.Value.Inspect())
+		}
+		if opt.T == HASH_EXISTS {
+			_, ok := hashObject.Pairs[key.HashKey()]
+			return &object.Boolean{
+				Value: ok,
+			}
+		}
 	}
 
 	pair, ok := hashObject.Pairs[key.HashKey()]
@@ -480,4 +481,24 @@ func evalHashTableIndexExpression(hash, index object.Object) object.Object {
 	}
 
 	return pair.Value
+}
+
+func evalHashTableStatement(name string, value object.Object, env *object.Environment) object.Object {
+	cons, ok := value.(*object.BuiltinConstant)
+	if !ok {
+		return newError("unknown hash declare: %s", value.Inspect())
+	}
+	var casecare bool = false
+	var sort bool = false
+	if cons.T == HASH_CASECARE {
+		casecare = true
+	}
+	if cons.T == HASH_SORT {
+		sort = true
+	}
+	return env.Set(name, &object.HashTable{
+		Pairs:    map[object.HashKey]object.HashPair{},
+		Casecare: casecare,
+		Sort:     sort,
+	})
 }

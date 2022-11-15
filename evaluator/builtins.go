@@ -174,6 +174,7 @@ const (
 	CALC_AVR      = object.BuiltinConstantType("CALC_AVR")
 	HASH_CASECARE = object.BuiltinConstantType("HASH_CASECARE")
 	HASH_SORT     = object.BuiltinConstantType("HASH_SORT")
+	HASH_EXISTS   = object.BuiltinConstantType("HASH_EXISTS")
 )
 
 var builtinConstants = map[object.BuiltinConstantType]object.Object{
@@ -211,6 +212,12 @@ var builtinConstants = map[object.BuiltinConstantType]object.Object{
 		T: HASH_SORT,
 		Value: &object.Integer{
 			Value: 8192,
+		},
+	},
+	HASH_EXISTS: &object.BuiltinConstant{
+		T: HASH_EXISTS,
+		Value: &object.Integer{
+			Value: -103,
 		},
 	},
 }

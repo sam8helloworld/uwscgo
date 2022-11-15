@@ -443,9 +443,10 @@ func (al *ArrayLiteral) String() string {
 }
 
 type IndexExpression struct {
-	Token token.Token // '[' トークン
-	Left  Expression
-	Index Expression
+	Token  token.Token // '[' トークン
+	Left   Expression
+	Index  Expression
+	Option Expression
 }
 
 func (ie *IndexExpression) expressionNode() {}

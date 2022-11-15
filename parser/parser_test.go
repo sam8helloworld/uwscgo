@@ -1119,6 +1119,36 @@ func TestParsingIndexExpressions(t *testing.T) {
 	}
 }
 
+func TestParsingIndexOptionExpressions(t *testing.T) {
+	input := `arr[1 + 1, HASH_EXISTS]`
+
+	l := lexer.NewLexer(input)
+	p := parser.NewParser(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmt not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+	indexExp, ok := stmt.Expression.(*ast.IndexExpression)
+	if !ok {
+		t.Fatalf("exp not ast.IndexExpression. got=%T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, indexExp.Left, "arr") {
+		return
+	}
+
+	if !testInfixExpression(t, indexExp.Index, 1, "+", 1) {
+		return
+	}
+
+	if !testIdentifier(t, indexExp.Option, "HASH_EXISTS") {
+		return
+	}
+}
+
 func TestParsingArrayAssign(t *testing.T) {
 	input := `arr[1] = 2`
 
