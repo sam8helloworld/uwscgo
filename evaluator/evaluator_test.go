@@ -108,13 +108,6 @@ valB`,
 val`,
 			5,
 		},
-		{
-			"連想配列の宣言ができる",
-			`HASHTBL val
-val["key"] = 5
-val`,
-			5,
-		},
 	}
 
 	for _, tt := range tests {
@@ -671,6 +664,34 @@ array[0]`,
 			`DIM array[-1]
 LENGTH(array)`,
 			0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			integer, ok := tt.expected.(int)
+			if ok {
+				testIntegerObject(t, evaluated, int64(integer))
+			} else {
+				testNullObject(t, evaluated)
+			}
+		})
+	}
+}
+
+func TestHashTableIndexExpressions(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected interface{}
+	}{
+		{
+			"連想配列の添字に文字列を指定する",
+			`HASHTBL hash = HASH_CASECARE
+hash["key"] = 5
+hash["key"]`,
+			5,
 		},
 	}
 
