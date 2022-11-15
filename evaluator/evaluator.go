@@ -42,6 +42,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIdentifier(node, env)
 	case *ast.EmptyArgument:
 		return EMPTY
+	case *ast.Empty:
+		return EMPTY
 	case *ast.PrefixExpression:
 		right := Eval(node.Right, env)
 		if isError(right) {
@@ -484,17 +486,19 @@ func evalHashTableIndexExpression(hash, index, opt object.Object) object.Object 
 }
 
 func evalHashTableStatement(name string, value object.Object, env *object.Environment) object.Object {
-	cons, ok := value.(*object.BuiltinConstant)
-	if !ok {
-		return newError("unknown hash declare: %s", value.Inspect())
-	}
 	var casecare bool = false
 	var sort bool = false
-	if cons.T == HASH_CASECARE {
-		casecare = true
-	}
-	if cons.T == HASH_SORT {
-		sort = true
+	switch val := value.(type) {
+	case *object.BuiltinConstant:
+		if val.T == HASH_CASECARE {
+			casecare = true
+		}
+		if val.T == HASH_SORT {
+			sort = true
+		}
+	case *object.Empty:
+	default:
+		return newError("unknown hash declare: %s", val.Inspect())
 	}
 	return env.Set(name, &object.HashTable{
 		Pairs:    map[object.HashKey]object.HashPair{},
