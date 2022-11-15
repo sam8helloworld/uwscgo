@@ -35,6 +35,25 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.ConstStatement:
 		val := Eval(node.Value, env)
 		env.SetConst(node.Name.Value, val)
+	case *ast.HashTableStatement:
+		val := Eval(node.Value, env)
+		cons, ok := val.(*object.BuiltinConstant)
+		if !ok {
+			return newError("")
+		}
+		var casecare bool = false
+		var sort bool = false
+		if cons.Value.(*object.String).Value == "HASH_CASECARE" {
+			casecare = true
+		}
+		if cons.Value.(*object.String).Value == "HASH_SORT" {
+			sort = true
+		}
+		env.Set(node.Name.Value, &object.HashTable{
+			Pairs:    map[object.HashKey]object.HashPair{},
+			Casecare: casecare,
+			Sort:     sort,
+		})
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.EmptyArgument:
@@ -262,8 +281,6 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
 	case left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ:
 		return evalStringInfixExpression(operator, left, right)
-	// case left.Type() == object.ARRAY_OBJ && operator == "=":
-	// 	return evalArrayInfixExpression(operator, left, right)
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
@@ -370,20 +387,32 @@ func evalAssignExpression(left ast.Expression, val object.Object, env *object.En
 		if !ok {
 			return newError("dfdf")
 		}
-		array, ok := env.Get(ident.Value)
+		aoh, ok := env.Get(ident.Value)
 		if !ok {
 			return newError("dfdfd")
 		}
-		oa, ok := array.(*object.Array)
-		if !ok {
-			return newError("dfdf")
+		switch aoh := aoh.(type) {
+		case *object.Array:
+			index, ok := l.Index.(*ast.IntegerLiteral)
+			if !ok {
+				return newError("")
+			}
+			aoh.Elements[int(index.Value)] = val
+			env.Set(ident.Value, aoh)
+		case *object.HashTable:
+			index := Eval(l.Index, env)
+			key, ok := index.(object.Hashable)
+			if !ok {
+				return newError("unusable as hash key: %s", index.Type())
+			}
+			aoh.Pairs[key.HashKey()] = object.HashPair{
+				Key:   index,
+				Value: val,
+			}
+			return aoh
+		default:
+			return newError("")
 		}
-		index, ok := l.Index.(*ast.IntegerLiteral)
-		if !ok {
-			return newError("dfdf")
-		}
-		oa.Elements[int(index.Value)] = val
-		env.Set(ident.Value, oa)
 	}
 	return val
 }
@@ -419,6 +448,8 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 		return evalArrayIndexExpression(left, index)
+	case left.Type() == object.HASHTBL_OBJ:
+		return evalHashTableIndexExpression(left, index)
 	default:
 		return newError("index operator not supported: %s", left.Type())
 	}
@@ -433,4 +464,20 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 		return NULL
 	}
 	return arrayObject.Elements[idx]
+}
+
+func evalHashTableIndexExpression(hash, index object.Object) object.Object {
+	hashObject := hash.(*object.HashTable)
+
+	key, ok := index.(object.Hashable)
+	if !ok {
+		return newError("unusable as hash key: %s", index.Type())
+	}
+
+	pair, ok := hashObject.Pairs[key.HashKey()]
+	if !ok {
+		return NULL
+	}
+
+	return pair.Value
 }

@@ -188,6 +188,16 @@ var builtinConstants = map[string]object.Object{
 			Value: "CALC_AVR",
 		},
 	},
+	"HASH_CASECARE": &object.BuiltinConstant{
+		Value: &object.String{
+			Value: "HASH_CASECARE",
+		},
+	},
+	"HASH_SORT": &object.BuiltinConstant{
+		Value: &object.String{
+			Value: "HASH_SORT",
+		},
+	},
 }
 
 func builtin(key string) (object.Object, bool) {
