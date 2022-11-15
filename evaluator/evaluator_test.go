@@ -90,6 +90,13 @@ func TestDeclarationStatements(t *testing.T) {
 		expected int64
 	}{
 		{
+			"空の整数の変数宣言ができる",
+			`DIM val
+val = 5
+val`,
+			5,
+		},
+		{
 			"整数の変数宣言ができる",
 			`DIM val = 5
 val`,
@@ -686,6 +693,13 @@ func TestHashTableIndexExpressions(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
+		{
+			"空の連想配列を定義できる",
+			`HASHTBL hash
+hash["key"] = 5
+hash["key"]`,
+			5,
+		},
 		{
 			"連想配列の添字に文字列を指定する",
 			`HASHTBL hash = HASH_CASECARE
