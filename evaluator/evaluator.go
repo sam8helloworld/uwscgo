@@ -478,6 +478,24 @@ func evalHashTableIndexExpression(hash, index, opt object.Object) object.Object 
 		if opt.T == HASH_REMOVE {
 			delete(hashObject.Pairs, key.HashKey())
 		}
+		if opt.T == HASH_KEY {
+			i, ok := key.(*object.Integer)
+			if !ok {
+				return newError("unusable as hash key: %s", key.HashKey().Type)
+			}
+			pair := hashObject.GetPairByIndex(int(i.Value))
+
+			return pair.Key
+		}
+		if opt.T == HASH_VAL {
+			i, ok := key.(*object.Integer)
+			if !ok {
+				return newError("unusable as hash key: %s", key.HashKey().Type)
+			}
+			pair := hashObject.GetPairByIndex(int(i.Value))
+
+			return pair.Value
+		}
 	}
 
 	pair, ok := hashObject.Pairs[key.HashKey()]
@@ -504,8 +522,8 @@ func evalHashTableStatement(name string, value object.Object, env *object.Enviro
 		return newError("unknown hash declare: %s", val.Inspect())
 	}
 	return env.Set(name, &object.HashTable{
-		Pairs:    map[object.HashKey]object.HashPair{},
-		Casecare: casecare,
-		Sort:     sort,
+		Pairs:      map[object.HashKey]object.HashPair{},
+		IsSort:     sort,
+		IsCasecare: casecare,
 	})
 }

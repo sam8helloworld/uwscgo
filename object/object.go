@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"hash/fnv"
+	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/sam8helloworld/uwscgo/ast"
@@ -279,9 +281,9 @@ type Hashable interface {
 }
 
 type HashTable struct {
-	Pairs    map[HashKey]HashPair
-	Sort     bool
-	Casecare bool
+	Pairs      map[HashKey]HashPair
+	IsSort     bool
+	IsCasecare bool
 }
 
 func (ht *HashTable) Type() ObjectType {
@@ -300,4 +302,36 @@ func (ht *HashTable) Inspect() string {
 	out.WriteString(strings.Join(pairs, ", "))
 	out.WriteString("}")
 	return out.String()
+}
+
+func (ht *HashTable) GetPairByIndex(index int) HashPair {
+	hashKeys := []struct {
+		hashKey HashKey
+		key     string
+	}{}
+	for hk, pair := range ht.Pairs {
+		var val string
+		switch p := pair.Value.(type) {
+		case *Integer:
+			val = strconv.FormatInt(p.Value, 10)
+		case *String:
+			val = p.Value
+		case *Boolean:
+			val = strconv.FormatBool(p.Value)
+		}
+		hashKeys = append(hashKeys, struct {
+			hashKey HashKey
+			key     string
+		}{
+			hashKey: hk,
+			key:     val,
+		})
+	}
+	if ht.IsSort {
+		sort.Slice(hashKeys, func(i, j int) bool {
+			return hashKeys[i].key > hashKeys[j].key
+		})
+	}
+
+	return ht.Pairs[hashKeys[index].hashKey]
 }

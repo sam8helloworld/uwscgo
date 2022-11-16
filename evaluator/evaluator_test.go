@@ -253,6 +253,19 @@ func testBoolenObject(t *testing.T, obj object.Object, expected bool) bool {
 	return true
 }
 
+func testStringObject(t *testing.T, obj object.Object, expected string) bool {
+	result, ok := obj.(*object.String)
+	if !ok {
+		t.Fatalf("object is not String. got=%T (%+T)", obj, obj)
+		return false
+	}
+	if result.Value != expected {
+		t.Errorf("object has wrong value. got=%s, want=%s", result.Value, expected)
+		return false
+	}
+	return true
+}
+
 func TestIfElseStatements(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -730,6 +743,26 @@ hash["key", HASH_EXISTS]
 `,
 			false,
 		},
+		{
+			"連想配列の指定した順列番号のキーを取得する",
+			`HASHTBL hash = HASH_SORT
+hash["a"] = 1
+hash["b"] = 2
+hash["c"] = 3
+hash[1, HASH_KEY]
+`,
+			"b",
+		},
+		{
+			"連想配列の指定した順列番号の値を取得する",
+			`HASHTBL hash = HASH_SORT
+hash["a"] = 1
+hash["b"] = 2
+hash["c"] = 3
+hash[1, HASH_VAL]
+`,
+			2,
+		},
 	}
 
 	for _, tt := range tests {
@@ -740,6 +773,8 @@ hash["key", HASH_EXISTS]
 				testIntegerObject(t, evaluated, int64(expected))
 			case bool:
 				testBoolenObject(t, evaluated, expected)
+			case string:
+				testStringObject(t, evaluated, expected)
 			default:
 				testNullObject(t, evaluated)
 			}
