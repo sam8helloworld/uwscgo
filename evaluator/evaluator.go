@@ -371,6 +371,21 @@ func isTruthy(obj object.Object) bool {
 func evalAssignExpression(left ast.Expression, val object.Object, env *object.Environment) object.Object {
 	switch l := left.(type) {
 	case *ast.Identifier:
+		ident, ok := env.Get(l.Value)
+		if !ok {
+			return newError("identifier is not defined: %s", l.String())
+		}
+		if _, ok := ident.(*object.HashTable); ok {
+			if cons, ok := val.(*object.BuiltinConstant); ok {
+				if cons.T == HASH_REMOVEALL {
+					ht := &object.HashTable{
+						Pairs: map[object.HashKey]object.HashPair{},
+					}
+					env.Set(l.Value, ht)
+					return ht
+				}
+			}
+		}
 		env.Set(l.Value, val)
 	case *ast.IndexExpression:
 		ident, ok := l.Left.(*ast.Identifier)
