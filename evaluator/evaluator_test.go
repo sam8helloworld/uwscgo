@@ -721,6 +721,15 @@ hash["key"] = 5
 hash["key_non", HASH_EXISTS]`,
 			false,
 		},
+		{
+			"連想配列のキーと値のペアを削除する",
+			`HASHTBL hash = HASH_CASECARE
+hash["key"] = 5
+hash["key", HASH_REMOVE]
+hash["key", HASH_EXISTS]
+`,
+			false,
+		},
 	}
 
 	for _, tt := range tests {

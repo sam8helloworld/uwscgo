@@ -475,6 +475,9 @@ func evalHashTableIndexExpression(hash, index, opt object.Object) object.Object 
 				Value: ok,
 			}
 		}
+		if opt.T == HASH_REMOVE {
+			delete(hashObject.Pairs, key.HashKey())
+		}
 	}
 
 	pair, ok := hashObject.Pairs[key.HashKey()]
