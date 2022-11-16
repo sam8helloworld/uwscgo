@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/sam8helloworld/uwscgo/ast"
 	"github.com/sam8helloworld/uwscgo/object"
@@ -477,6 +478,24 @@ func evalHashTableIndexExpression(hash, index, opt object.Object) object.Object 
 		}
 		if opt.T == HASH_REMOVE {
 			delete(hashObject.Pairs, key.HashKey())
+		}
+		if opt.T == HASH_KEY {
+			i, ok := key.(*object.Integer)
+			if !ok {
+				return newError("unusable as hash key: %s", key.HashKey().Type)
+			}
+			pairs := []object.HashPair{}
+			for _, p := range hashObject.Pairs {
+				pairs = append(pairs, p)
+			}
+
+			if hashObject.Sort {
+				sort.Slice(pairs, func(i, j int) bool {
+					return pairs[i].Key.(*object.String).Value > pairs[j].Key.(*object.String).Value
+				})
+			}
+
+			return pairs[int(i.Value)].Key
 		}
 	}
 
