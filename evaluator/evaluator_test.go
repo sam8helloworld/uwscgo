@@ -753,6 +753,16 @@ hash[1, HASH_KEY]
 `,
 			"b",
 		},
+		{
+			"連想配列の指定した順列番号の値を取得する",
+			`HASHTBL hash = HASH_CASECARE
+hash["a"] = 1
+hash["b"] = 2
+hash["c"] = 3
+hash[1, HASH_VALUE]
+`,
+			2,
+		},
 	}
 
 	for _, tt := range tests {
