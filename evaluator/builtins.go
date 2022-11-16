@@ -177,6 +177,7 @@ const (
 	HASH_EXISTS   = object.BuiltinConstantType("HASH_EXISTS")
 	HASH_REMOVE   = object.BuiltinConstantType("HASH_REMOVE")
 	HASH_KEY      = object.BuiltinConstantType("HASH_KEY")
+	HASH_VAL      = object.BuiltinConstantType("HASH_VAL")
 )
 
 var builtinConstants = map[object.BuiltinConstantType]object.Object{
@@ -232,6 +233,12 @@ var builtinConstants = map[object.BuiltinConstantType]object.Object{
 		T: HASH_KEY,
 		Value: &object.Integer{
 			Value: -101,
+		},
+	},
+	HASH_VAL: &object.BuiltinConstant{
+		T: HASH_VAL,
+		Value: &object.Integer{
+			Value: -102,
 		},
 	},
 }

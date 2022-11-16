@@ -497,6 +497,24 @@ func evalHashTableIndexExpression(hash, index, opt object.Object) object.Object 
 
 			return pairs[int(i.Value)].Key
 		}
+		if opt.T == HASH_VAL {
+			i, ok := key.(*object.Integer)
+			if !ok {
+				return newError("unusable as hash key: %s", key.HashKey().Type)
+			}
+			pairs := []object.HashPair{}
+			for _, p := range hashObject.Pairs {
+				pairs = append(pairs, p)
+			}
+
+			if hashObject.Sort {
+				sort.Slice(pairs, func(i, j int) bool {
+					return pairs[i].Key.(*object.String).Value > pairs[j].Key.(*object.String).Value
+				})
+			}
+
+			return pairs[int(i.Value)].Value
+		}
 	}
 
 	pair, ok := hashObject.Pairs[key.HashKey()]

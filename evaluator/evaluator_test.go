@@ -745,7 +745,7 @@ hash["key", HASH_EXISTS]
 		},
 		{
 			"連想配列の指定した順列番号のキーを取得する",
-			`HASHTBL hash = HASH_CASECARE
+			`HASHTBL hash = HASH_SORT
 hash["a"] = 1
 hash["b"] = 2
 hash["c"] = 3
@@ -755,11 +755,11 @@ hash[1, HASH_KEY]
 		},
 		{
 			"連想配列の指定した順列番号の値を取得する",
-			`HASHTBL hash = HASH_CASECARE
+			`HASHTBL hash = HASH_SORT
 hash["a"] = 1
 hash["b"] = 2
 hash["c"] = 3
-hash[1, HASH_VALUE]
+hash[1, HASH_VAL]
 `,
 			2,
 		},
