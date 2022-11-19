@@ -20,10 +20,11 @@ const (
 
 	// PRINT = "PRINT"
 
-	// FOR  = "FOR"
-	// TO   = "TO"
+	FOR  = "FOR"
+	TO   = "TO"
+	STEP = "STEP"
 	// IN   = "IN"
-	// NEXT = "NEXT"
+	NEXT = "NEXT"
 
 	DIM    = "DIM"
 	PUBLIC = "PUBLIC"
@@ -101,6 +102,10 @@ var reservedWords = map[string]TokenType{
 	"FEND":      FEND,
 	"PROCEDURE": PROCEDURE,
 	"RESULT":    RESULT,
+	"FOR":       FOR,
+	"TO":        TO,
+	"STEP":      STEP,
+	"NEXT":      NEXT,
 }
 
 func LookupIdent(ident string) TokenType {
