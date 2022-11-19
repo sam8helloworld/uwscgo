@@ -168,16 +168,17 @@ var builtinFunctions = map[string]*object.BuiltinFunction{
 }
 
 const (
-	CALC_ADD      = object.BuiltinConstantType("CALC_ADD")
-	CALC_MIN      = object.BuiltinConstantType("CALC_MIN")
-	CALC_MAX      = object.BuiltinConstantType("CALC_MAX")
-	CALC_AVR      = object.BuiltinConstantType("CALC_AVR")
-	HASH_CASECARE = object.BuiltinConstantType("HASH_CASECARE")
-	HASH_SORT     = object.BuiltinConstantType("HASH_SORT")
-	HASH_EXISTS   = object.BuiltinConstantType("HASH_EXISTS")
-	HASH_REMOVE   = object.BuiltinConstantType("HASH_REMOVE")
-	HASH_KEY      = object.BuiltinConstantType("HASH_KEY")
-	HASH_VAL      = object.BuiltinConstantType("HASH_VAL")
+	CALC_ADD       = object.BuiltinConstantType("CALC_ADD")
+	CALC_MIN       = object.BuiltinConstantType("CALC_MIN")
+	CALC_MAX       = object.BuiltinConstantType("CALC_MAX")
+	CALC_AVR       = object.BuiltinConstantType("CALC_AVR")
+	HASH_CASECARE  = object.BuiltinConstantType("HASH_CASECARE")
+	HASH_SORT      = object.BuiltinConstantType("HASH_SORT")
+	HASH_EXISTS    = object.BuiltinConstantType("HASH_EXISTS")
+	HASH_REMOVE    = object.BuiltinConstantType("HASH_REMOVE")
+	HASH_KEY       = object.BuiltinConstantType("HASH_KEY")
+	HASH_VAL       = object.BuiltinConstantType("HASH_VAL")
+	HASH_REMOVEALL = object.BuiltinConstantType("HASH_REMOVEALL")
 )
 
 var builtinConstants = map[object.BuiltinConstantType]object.Object{
@@ -239,6 +240,12 @@ var builtinConstants = map[object.BuiltinConstantType]object.Object{
 		T: HASH_VAL,
 		Value: &object.Integer{
 			Value: -102,
+		},
+	},
+	HASH_REMOVEALL: &object.BuiltinConstant{
+		T: HASH_REMOVEALL,
+		Value: &object.Integer{
+			Value: -109,
 		},
 	},
 }

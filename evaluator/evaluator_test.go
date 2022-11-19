@@ -763,6 +763,17 @@ hash[1, HASH_VAL]
 `,
 			2,
 		},
+		{
+			"連想配列を削除する",
+			`HASHTBL hash = HASH_SORT
+hash["a"] = 1
+hash["b"] = 2
+hash["c"] = 3
+hash = HASH_REMOVEALL
+hash["a", HASH_EXISTS]
+`,
+			false,
+		},
 	}
 
 	for _, tt := range tests {
