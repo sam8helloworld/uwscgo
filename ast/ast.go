@@ -267,6 +267,37 @@ func (hts *HashTableStatement) String() string {
 	return out.String()
 }
 
+type ForStatement struct {
+	Token   token.Token
+	LoopVar *Identifier
+	From    Expression
+	To      Expression
+	Step    Expression
+	Block   *BlockStatement
+}
+
+func (fs *ForStatement) statementNode() {}
+func (fs *ForStatement) TokenLiteral() string {
+	return fs.Token.Literal
+}
+func (fs *ForStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(fs.TokenLiteral() + " ")
+	out.WriteString(fs.LoopVar.String() + " ")
+	out.WriteString(" = ")
+	out.WriteString(fs.From.String() + " ")
+	out.WriteString("TO ")
+	out.WriteString(fs.To.String() + " ")
+	out.WriteString("STEP ")
+	out.WriteString(fs.Step.String())
+	out.WriteString("\n")
+	out.WriteString(fs.Block.String())
+	out.WriteString("NEXT")
+
+	return out.String()
+}
+
 /////////////// Expression
 type Identifier struct {
 	Token token.Token // token.IDENT
