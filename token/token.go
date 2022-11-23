@@ -23,7 +23,7 @@ const (
 	FOR  = "FOR"
 	TO   = "TO"
 	STEP = "STEP"
-	// IN   = "IN"
+	IN   = "IN"
 	NEXT = "NEXT"
 
 	DIM    = "DIM"
@@ -105,6 +105,7 @@ var reservedWords = map[string]TokenType{
 	"FOR":       FOR,
 	"TO":        TO,
 	"STEP":      STEP,
+	"IN":        IN,
 	"NEXT":      NEXT,
 }
 
