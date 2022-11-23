@@ -593,7 +593,7 @@ func TestNextToken_配列(t *testing.T) {
 func TestNextToken_FORTONEXT(t *testing.T) {
 	tests := []Args{
 		{
-			name: "1次元の空の配列定義",
+			name: "省略なしの完全なFOR TO NEXT構文",
 			input: `FOR n = 0 TO 10 STEP 1
 NEXT`,
 			expected: []token.Token{
@@ -628,6 +628,44 @@ NEXT`,
 				{
 					Type:    token.INT,
 					Literal: "1",
+				},
+				{
+					Type:    token.EOL,
+					Literal: "\n",
+				},
+				{
+					Type:    token.NEXT,
+					Literal: "NEXT",
+				},
+			},
+		},
+	}
+
+	testToken(t, tests)
+}
+
+func TestNextToken_FORINNEXT(t *testing.T) {
+	tests := []Args{
+		{
+			name: "省略なしの完全なFOR IN NEXT構文",
+			input: `FOR a IN array
+NEXT`,
+			expected: []token.Token{
+				{
+					Type:    token.FOR,
+					Literal: "FOR",
+				},
+				{
+					Type:    token.IDENT,
+					Literal: "a",
+				},
+				{
+					Type:    token.IN,
+					Literal: "IN",
+				},
+				{
+					Type:    token.IDENT,
+					Literal: "array",
 				},
 				{
 					Type:    token.EOL,
