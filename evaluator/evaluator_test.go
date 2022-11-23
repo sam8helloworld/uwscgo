@@ -792,3 +792,39 @@ hash["a", HASH_EXISTS]
 		})
 	}
 }
+
+func TestFORINNEXTStatement(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected int64
+	}{
+		{
+			"STEPなし",
+			`DIM val = 0
+FOR n = 0 TO 10
+	val = val + 1
+NEXT
+val
+`,
+			11,
+		},
+		{
+			"STEPあり",
+			`DIM val = 0
+FOR n = 0 TO 10 STEP 2
+	val = val + 1
+NEXT
+val
+`,
+			6,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			testIntegerObject(t, evaluated, int64(tt.expected))
+		})
+	}
+}

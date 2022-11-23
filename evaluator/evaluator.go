@@ -38,6 +38,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.HashTableStatement:
 		val := Eval(node.Value, env)
 		evalHashTableStatement(node.Name.Value, val, env)
+	case *ast.ForStatement:
+		evalForStatement(node, env)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.EmptyArgument:
@@ -541,4 +543,33 @@ func evalHashTableStatement(name string, value object.Object, env *object.Enviro
 		IsSort:     sort,
 		IsCasecare: casecare,
 	})
+}
+
+func evalForStatement(forStmt *ast.ForStatement, env *object.Environment) object.Object {
+	from, ok := forStmt.From.(*ast.IntegerLiteral)
+	if !ok {
+		return newError("forStmt.From is not *ast.IntegerLiteral. got=%T", forStmt.From)
+	}
+	to, ok := forStmt.To.(*ast.IntegerLiteral)
+	if !ok {
+		return newError("forStmt.To is not *ast.IntegerLiteral. got=%T", forStmt.To)
+	}
+	step, ok := forStmt.Step.(*ast.IntegerLiteral)
+	if !ok {
+		// NOTE: STEPが省略されている場合1にする
+		step = &ast.IntegerLiteral{
+			Value: int64(1),
+		}
+	}
+
+	for i := from.Value; i <= to.Value; i += step.Value {
+		index := &object.Integer{
+			Value: i,
+		}
+		env.Set(forStmt.LoopVar.Value, index)
+		for _, stmt := range forStmt.Block.Statements {
+			Eval(stmt, env)
+		}
+	}
+	return nil
 }
