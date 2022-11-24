@@ -828,3 +828,30 @@ val
 		})
 	}
 }
+
+func TestFORINStatement(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected int64
+	}{
+		{
+			"配列の全ての要素をFOR_IN構文で加算する",
+			`DIM array[] = 1, 2, 3
+DIM sum = 0
+FOR a IN array
+	sum = sum + a
+NEXT
+sum
+`,
+			6,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			testIntegerObject(t, evaluated, int64(tt.expected))
+		})
+	}
+}

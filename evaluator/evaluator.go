@@ -38,8 +38,10 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.HashTableStatement:
 		val := Eval(node.Value, env)
 		evalHashTableStatement(node.Name.Value, val, env)
-	case *ast.ForStatement:
-		evalForStatement(node, env)
+	case *ast.ForToStepStatement:
+		evalForToStepStatement(node, env)
+	case *ast.ForInStatement:
+		evalForInStatement(node, env)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.EmptyArgument:
@@ -545,7 +547,7 @@ func evalHashTableStatement(name string, value object.Object, env *object.Enviro
 	})
 }
 
-func evalForStatement(forStmt *ast.ForStatement, env *object.Environment) object.Object {
+func evalForToStepStatement(forStmt *ast.ForToStepStatement, env *object.Environment) object.Object {
 	from, ok := forStmt.From.(*ast.IntegerLiteral)
 	if !ok {
 		return newError("forStmt.From is not *ast.IntegerLiteral. got=%T", forStmt.From)
@@ -567,6 +569,28 @@ func evalForStatement(forStmt *ast.ForStatement, env *object.Environment) object
 			Value: i,
 		}
 		env.Set(forStmt.LoopVar.Value, index)
+		for _, stmt := range forStmt.Block.Statements {
+			Eval(stmt, env)
+		}
+	}
+	return nil
+}
+
+func evalForInStatement(forStmt *ast.ForInStatement, env *object.Environment) object.Object {
+	collectionIdent, ok := forStmt.Collection.(*ast.Identifier)
+	if !ok {
+		return newError("forStmt.Collection is not *ast.Identifier. got=%T", forStmt.Collection)
+	}
+
+	collect := Eval(collectionIdent, env)
+	collectObject, ok := collect.(*object.Array)
+	if !ok {
+		return newError("collect is not *object.Array. got=%T", collect)
+	}
+
+	for _, element := range collectObject.Elements {
+		env.Set(forStmt.LoopVar.Value, element)
+
 		for _, stmt := range forStmt.Block.Statements {
 			Eval(stmt, env)
 		}

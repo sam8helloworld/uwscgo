@@ -267,7 +267,7 @@ func (hts *HashTableStatement) String() string {
 	return out.String()
 }
 
-type ForStatement struct {
+type ForToStepStatement struct {
 	Token   token.Token
 	LoopVar *Identifier
 	From    Expression
@@ -276,23 +276,48 @@ type ForStatement struct {
 	Block   *BlockStatement
 }
 
-func (fs *ForStatement) statementNode() {}
-func (fs *ForStatement) TokenLiteral() string {
-	return fs.Token.Literal
+func (ftss *ForToStepStatement) statementNode() {}
+func (ftss *ForToStepStatement) TokenLiteral() string {
+	return ftss.Token.Literal
 }
-func (fs *ForStatement) String() string {
+func (ftss *ForToStepStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(fs.TokenLiteral() + " ")
-	out.WriteString(fs.LoopVar.String() + " ")
+	out.WriteString(ftss.TokenLiteral() + " ")
+	out.WriteString(ftss.LoopVar.String() + " ")
 	out.WriteString(" = ")
-	out.WriteString(fs.From.String() + " ")
+	out.WriteString(ftss.From.String() + " ")
 	out.WriteString("TO ")
-	out.WriteString(fs.To.String() + " ")
+	out.WriteString(ftss.To.String() + " ")
 	out.WriteString("STEP ")
-	out.WriteString(fs.Step.String())
+	out.WriteString(ftss.Step.String())
 	out.WriteString("\n")
-	out.WriteString(fs.Block.String())
+	out.WriteString(ftss.Block.String())
+	out.WriteString("NEXT")
+
+	return out.String()
+}
+
+type ForInStatement struct {
+	Token      token.Token
+	LoopVar    *Identifier
+	Collection Expression
+	Block      *BlockStatement
+}
+
+func (fis *ForInStatement) statementNode() {}
+func (fis *ForInStatement) TokenLiteral() string {
+	return fis.Token.Literal
+}
+func (fis *ForInStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(fis.TokenLiteral() + " ")
+	out.WriteString(fis.LoopVar.String() + " ")
+	out.WriteString("IN ")
+	out.WriteString(fis.Collection.String())
+	out.WriteString("\n")
+	out.WriteString(fis.Block.String())
 	out.WriteString("NEXT")
 
 	return out.String()
