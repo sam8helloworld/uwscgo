@@ -649,6 +649,7 @@ func TestNextToken_FORINNEXT(t *testing.T) {
 		{
 			name: "省略なしの完全なFOR IN NEXT構文",
 			input: `FOR a IN array
+	CONTINUE
 NEXT`,
 			expected: []token.Token{
 				{
@@ -666,6 +667,14 @@ NEXT`,
 				{
 					Type:    token.IDENT,
 					Literal: "array",
+				},
+				{
+					Type:    token.EOL,
+					Literal: "\n",
+				},
+				{
+					Type:    token.CONTINUE,
+					Literal: "CONTINUE",
 				},
 				{
 					Type:    token.EOL,

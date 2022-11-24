@@ -563,13 +563,19 @@ func evalForToStepStatement(forStmt *ast.ForToStepStatement, env *object.Environ
 			Value: int64(1),
 		}
 	}
-
+Loop:
 	for i := from.Value; i <= to.Value; i += step.Value {
 		index := &object.Integer{
 			Value: i,
 		}
 		env.Set(forStmt.LoopVar.Value, index)
 		for _, stmt := range forStmt.Block.Statements {
+			if _, ok := stmt.(*ast.ContinueStatement); ok {
+				continue Loop
+			}
+			if _, ok := stmt.(*ast.BreakStatement); ok {
+				break Loop
+			}
 			Eval(stmt, env)
 		}
 	}
@@ -587,11 +593,17 @@ func evalForInStatement(forStmt *ast.ForInStatement, env *object.Environment) ob
 	if !ok {
 		return newError("collect is not *object.Array. got=%T", collect)
 	}
-
+Loop:
 	for _, element := range collectObject.Elements {
 		env.Set(forStmt.LoopVar.Value, element)
 
 		for _, stmt := range forStmt.Block.Statements {
+			if _, ok := stmt.(*ast.ContinueStatement); ok {
+				continue Loop
+			}
+			if _, ok := stmt.(*ast.BreakStatement); ok {
+				break Loop
+			}
 			Eval(stmt, env)
 		}
 	}

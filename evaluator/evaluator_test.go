@@ -819,6 +819,28 @@ val
 `,
 			6,
 		},
+		{
+			"CONTINUEで処理をスキップする",
+			`DIM val = 0
+FOR n = 0 TO 10 STEP 2
+	CONTINUE
+	val = val + 1
+NEXT
+val
+`,
+			0,
+		},
+		{
+			"BREAKでループ処理を終了する",
+			`DIM val = 0
+FOR n = 0 TO 10 STEP 2
+	val = val + 1
+	BREAK
+NEXT
+val
+`,
+			1,
+		},
 	}
 
 	for _, tt := range tests {
@@ -845,6 +867,30 @@ NEXT
 sum
 `,
 			6,
+		},
+		{
+			"CONTINUEで処理をスキップする",
+			`DIM array[] = 1, 2, 3
+DIM sum = 0
+FOR a IN array
+	CONTINUE
+	sum = sum + a
+NEXT
+sum
+`,
+			0,
+		},
+		{
+			"BREAKでループ処理を終了する",
+			`DIM array[] = 1, 2, 3
+DIM sum = 0
+FOR a IN array
+	sum = sum + a
+	BREAK
+NEXT
+sum
+`,
+			1,
 		},
 	}
 
