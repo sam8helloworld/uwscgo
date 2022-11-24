@@ -38,8 +38,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.HashTableStatement:
 		val := Eval(node.Value, env)
 		evalHashTableStatement(node.Name.Value, val, env)
-	case *ast.ForStatement:
-		evalForStatement(node, env)
+	case *ast.ForToStepStatement:
+		evalForToStepStatement(node, env)
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.EmptyArgument:
@@ -545,7 +545,7 @@ func evalHashTableStatement(name string, value object.Object, env *object.Enviro
 	})
 }
 
-func evalForStatement(forStmt *ast.ForStatement, env *object.Environment) object.Object {
+func evalForToStepStatement(forStmt *ast.ForToStepStatement, env *object.Environment) object.Object {
 	from, ok := forStmt.From.(*ast.IntegerLiteral)
 	if !ok {
 		return newError("forStmt.From is not *ast.IntegerLiteral. got=%T", forStmt.From)

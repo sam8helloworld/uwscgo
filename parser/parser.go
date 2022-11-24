@@ -702,10 +702,6 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseForStatement() ast.Statement {
-	// stmt := &ast.ForStatement{
-	// 	Token: p.curToken,
-	// }
-
 	tok := p.curToken
 
 	if !p.expectPeek(token.IDENT) {
@@ -718,7 +714,7 @@ func (p *Parser) parseForStatement() ast.Statement {
 
 	if p.peekTokenIs(token.EQUAL_OR_ASSIGN) {
 		p.nextToken()
-		stmt := &ast.ForStatement{
+		stmt := &ast.ForToStepStatement{
 			Token: tok,
 		}
 		stmt.LoopVar = loopVar

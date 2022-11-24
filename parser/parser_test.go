@@ -1286,9 +1286,9 @@ NEXT`,
 			program := p.ParseProgram()
 			checkParserErrors(t, p)
 
-			stmt, ok := program.Statements[0].(*ast.ForStatement)
+			stmt, ok := program.Statements[0].(*ast.ForToStepStatement)
 			if !ok {
-				t.Fatalf("stmt not ast.ForStatement. got=%T", program.Statements[0])
+				t.Fatalf("stmt not ast.ForToStepStatement. got=%T", program.Statements[0])
 			}
 
 			if stmt.LoopVar.Value != tt.expectedLoopVar {
