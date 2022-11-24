@@ -69,7 +69,7 @@ const (
 	// UNTIL  = "UNTIL"
 
 	// BREAK    = "BREAK"
-	// CONTINUE = "CONTINUE"
+	CONTINUE = "CONTINUE"
 
 	// SELECT  = "SELECT"
 	// CASE    = "CASE"
@@ -107,6 +107,7 @@ var reservedWords = map[string]TokenType{
 	"STEP":      STEP,
 	"IN":        IN,
 	"NEXT":      NEXT,
+	"CONTINUE":  CONTINUE,
 }
 
 func LookupIdent(ident string) TokenType {
