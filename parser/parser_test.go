@@ -1384,6 +1384,46 @@ func TestFORINStatement_Continue(t *testing.T) {
 NEXT`,
 			"a",
 		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.NewLexer(tt.input)
+			p := parser.NewParser(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			stmt, ok := program.Statements[0].(*ast.ForInStatement)
+			if !ok {
+				t.Fatalf("stmt not ast.ForInStatement. got=%T", program.Statements[0])
+			}
+
+			if stmt.LoopVar.Value != tt.expectedLoopVar {
+				t.Errorf("stmt.LoopVar.Value is not %s. got=%s", tt.expectedLoopVar, stmt.LoopVar.Value)
+			}
+
+			collection, ok := stmt.Collection.(*ast.Identifier)
+			if !ok {
+				t.Fatalf("stmt.Collection not ast.Identifier. got=%T", stmt.Collection)
+			}
+
+			if !testIdentifier(t, collection, "array") {
+				return
+			}
+
+			if _, ok := stmt.Block.Statements[0].(*ast.ContinueStatement); !ok {
+				t.Fatalf("stmt.Block.Statements[0] not *ast.ContinueStatement. got=%T", stmt.Block.Statements[0])
+			}
+		})
+	}
+}
+
+func TestFORINStatement_Break(t *testing.T) {
+	tests := []struct {
+		name            string
+		input           string
+		expectedLoopVar string
+	}{
 		{
 			"FOR IN 構文でBREAKで処理を終了",
 			`FOR a IN array
@@ -1418,8 +1458,8 @@ NEXT`,
 				return
 			}
 
-			if _, ok := stmt.Block.Statements[0].(*ast.ContinueStatement); !ok {
-				t.Fatalf("stmt.Block.Statements[0] not *ast.ContinueStatement. got=%T", stmt.Block.Statements[0])
+			if _, ok := stmt.Block.Statements[0].(*ast.BreakStatement); !ok {
+				t.Fatalf("stmt.Block.Statements[0] not *ast.BreakStatement. got=%T", stmt.Block.Statements[0])
 			}
 		})
 	}

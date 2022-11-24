@@ -131,6 +131,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseForStatement()
 	case token.CONTINUE:
 		return p.parseContinueStatement()
+	case token.BREAK:
+		return p.parseBreakStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -805,6 +807,15 @@ func (p *Parser) parseForStatement() ast.Statement {
 
 func (p *Parser) parseContinueStatement() ast.Statement {
 	stmt := &ast.ContinueStatement{
+		Token: p.curToken,
+	}
+
+	p.nextToken()
+	return stmt
+}
+
+func (p *Parser) parseBreakStatement() ast.Statement {
+	stmt := &ast.BreakStatement{
 		Token: p.curToken,
 	}
 

@@ -335,6 +335,18 @@ func (cs *ContinueStatement) String() string {
 	return cs.Token.Literal
 }
 
+type BreakStatement struct {
+	Token token.Token
+}
+
+func (bs *BreakStatement) statementNode() {}
+func (bs *BreakStatement) TokenLiteral() string {
+	return bs.Token.Literal
+}
+func (bs *BreakStatement) String() string {
+	return bs.Token.Literal
+}
+
 /////////////// Expression
 type Identifier struct {
 	Token token.Token // token.IDENT
