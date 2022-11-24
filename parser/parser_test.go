@@ -1384,6 +1384,13 @@ func TestFORINStatement_Continue(t *testing.T) {
 NEXT`,
 			"a",
 		},
+		{
+			"FOR IN 構文でBREAKで処理を終了",
+			`FOR a IN array
+	BREAK
+NEXT`,
+			"a",
+		},
 	}
 
 	for _, tt := range tests {
