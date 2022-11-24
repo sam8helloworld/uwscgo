@@ -68,7 +68,7 @@ const (
 	// REPEAT = "REPEAT"
 	// UNTIL  = "UNTIL"
 
-	// BREAK    = "BREAK"
+	BREAK    = "BREAK"
 	CONTINUE = "CONTINUE"
 
 	// SELECT  = "SELECT"
@@ -107,6 +107,7 @@ var reservedWords = map[string]TokenType{
 	"STEP":      STEP,
 	"IN":        IN,
 	"NEXT":      NEXT,
+	"BREAK":     BREAK,
 	"CONTINUE":  CONTINUE,
 }
 
