@@ -298,6 +298,31 @@ func (fs *ForStatement) String() string {
 	return out.String()
 }
 
+type ForInStatement struct {
+	Token      token.Token
+	LoopVar    *Identifier
+	Collection Expression
+	Block      *BlockStatement
+}
+
+func (fis *ForInStatement) statementNode() {}
+func (fis *ForInStatement) TokenLiteral() string {
+	return fis.Token.Literal
+}
+func (fis *ForInStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(fis.TokenLiteral() + " ")
+	out.WriteString(fis.LoopVar.String() + " ")
+	out.WriteString("IN ")
+	out.WriteString(fis.Collection.String())
+	out.WriteString("\n")
+	out.WriteString(fis.Block.String())
+	out.WriteString("NEXT")
+
+	return out.String()
+}
+
 /////////////// Expression
 type Identifier struct {
 	Token token.Token // token.IDENT

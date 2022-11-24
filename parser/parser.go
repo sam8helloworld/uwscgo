@@ -702,55 +702,44 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseForStatement() ast.Statement {
-	stmt := &ast.ForStatement{
-		Token: p.curToken,
-	}
+	// stmt := &ast.ForStatement{
+	// 	Token: p.curToken,
+	// }
+
+	tok := p.curToken
 
 	if !p.expectPeek(token.IDENT) {
 		return nil
 	}
-	stmt.LoopVar = &ast.Identifier{
+	loopVar := &ast.Identifier{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
 
-	if !p.expectPeek(token.EQUAL_OR_ASSIGN) {
-		return nil
-	}
-	if !p.expectPeek(token.INT) {
-		return nil
-	}
-	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
-	if err != nil {
-		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
-		p.errors = append(p.errors, msg)
-		return nil
-	}
-	stmt.From = &ast.IntegerLiteral{
-		Token: p.curToken,
-		Value: value,
-	}
-
-	if !p.expectPeek(token.TO) {
-		return nil
-	}
-
-	if !p.expectPeek(token.INT) {
-		return nil
-	}
-	value, err = strconv.ParseInt(p.curToken.Literal, 0, 64)
-	if err != nil {
-		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
-		p.errors = append(p.errors, msg)
-		return nil
-	}
-	stmt.To = &ast.IntegerLiteral{
-		Token: p.curToken,
-		Value: value,
-	}
-
-	if p.peekTokenIs(token.STEP) {
+	if p.peekTokenIs(token.EQUAL_OR_ASSIGN) {
 		p.nextToken()
+		stmt := &ast.ForStatement{
+			Token: tok,
+		}
+		stmt.LoopVar = loopVar
+		if !p.expectPeek(token.INT) {
+			return nil
+		}
+		value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
+		if err != nil {
+			msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
+			p.errors = append(p.errors, msg)
+			return nil
+		}
+		stmt.From = &ast.IntegerLiteral{
+			Token: p.curToken,
+			Value: value,
+		}
+
+		if !p.expectPeek(token.TO) {
+			return nil
+		}
+
 		if !p.expectPeek(token.INT) {
 			return nil
 		}
@@ -760,17 +749,58 @@ func (p *Parser) parseForStatement() ast.Statement {
 			p.errors = append(p.errors, msg)
 			return nil
 		}
-		stmt.Step = &ast.IntegerLiteral{
+		stmt.To = &ast.IntegerLiteral{
 			Token: p.curToken,
 			Value: value,
 		}
+
+		if p.peekTokenIs(token.STEP) {
+			p.nextToken()
+			if !p.expectPeek(token.INT) {
+				return nil
+			}
+			value, err = strconv.ParseInt(p.curToken.Literal, 0, 64)
+			if err != nil {
+				msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
+				p.errors = append(p.errors, msg)
+				return nil
+			}
+			stmt.Step = &ast.IntegerLiteral{
+				Token: p.curToken,
+				Value: value,
+			}
+		}
+
+		if !p.expectPeek(token.EOL) {
+			return nil
+		}
+		p.nextToken()
+		stmt.Block = p.parseBlockStatement()
+
+		return stmt
 	}
 
-	if !p.expectPeek(token.EOL) {
-		return nil
-	}
-	p.nextToken()
-	stmt.Block = p.parseBlockStatement()
+	if p.peekTokenIs(token.IN) {
+		p.nextToken()
+		stmt := &ast.ForInStatement{
+			Token: tok,
+		}
+		stmt.LoopVar = loopVar
+		if !p.expectPeek(token.IDENT) {
+			return nil
+		}
+		stmt.Collection = &ast.Identifier{
+			Token: p.curToken,
+			Value: p.curToken.Literal,
+		}
+		if !p.expectPeek(token.EOL) {
+			return nil
+		}
+		p.nextToken()
+		stmt.Block = p.parseBlockStatement()
 
-	return stmt
+		return stmt
+	}
+
+	return nil
 }
