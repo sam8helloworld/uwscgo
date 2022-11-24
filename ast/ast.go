@@ -323,6 +323,18 @@ func (fis *ForInStatement) String() string {
 	return out.String()
 }
 
+type ContinueStatement struct {
+	Token token.Token
+}
+
+func (cs *ContinueStatement) statementNode() {}
+func (cs *ContinueStatement) TokenLiteral() string {
+	return cs.Token.Literal
+}
+func (cs *ContinueStatement) String() string {
+	return cs.Token.Literal
+}
+
 /////////////// Expression
 type Identifier struct {
 	Token token.Token // token.IDENT
