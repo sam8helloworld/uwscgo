@@ -1267,7 +1267,7 @@ func TestFORTONEXTStatement(t *testing.T) {
 		expectedValue   string
 	}{
 		{
-			"オプション付きで連想配列を宣言する",
+			"省略なしの完全な形のFOR TO STEP構文",
 			`FOR n = 0 TO 10 STEP 1
 	n
 NEXT`,
@@ -1311,6 +1311,60 @@ NEXT`,
 			}
 
 			if !testIdentifier(t, blstmt.Expression, "n") {
+				return
+			}
+		})
+	}
+}
+
+func TestFORINStatement(t *testing.T) {
+	tests := []struct {
+		name            string
+		input           string
+		expectedLoopVar string
+		expectedValue   string
+	}{
+		{
+			"FOR IN 構文",
+			`FOR a IN array
+	a
+NEXT`,
+			"a",
+			"a",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.NewLexer(tt.input)
+			p := parser.NewParser(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			stmt, ok := program.Statements[0].(*ast.ForInStatement)
+			if !ok {
+				t.Fatalf("stmt not ast.ForInStatement. got=%T", program.Statements[0])
+			}
+
+			if stmt.LoopVar.Value != tt.expectedLoopVar {
+				t.Errorf("stmt.LoopVar.Value is not %s. got=%s", tt.expectedLoopVar, stmt.LoopVar.Value)
+			}
+
+			collection, ok := stmt.Collection.(*ast.Identifier)
+			if !ok {
+				t.Fatalf("stmt.Collection not ast.Identifier. got=%T", stmt.Collection)
+			}
+
+			if !testIdentifier(t, collection, "array") {
+				return
+			}
+
+			blstmt, ok := stmt.Block.Statements[0].(*ast.ExpressionStatement)
+			if !ok {
+				t.Fatalf("stmt.Block.Statements[0] not ast.ExpressionStatement. got=%T", stmt.Block.Statements[0])
+			}
+
+			if !testIdentifier(t, blstmt.Expression, tt.expectedValue) {
 				return
 			}
 		})
