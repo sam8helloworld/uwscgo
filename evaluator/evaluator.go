@@ -573,6 +573,9 @@ Loop:
 			if _, ok := stmt.(*ast.ContinueStatement); ok {
 				continue Loop
 			}
+			if _, ok := stmt.(*ast.BreakStatement); ok {
+				break Loop
+			}
 			Eval(stmt, env)
 		}
 	}
@@ -597,6 +600,9 @@ Loop:
 		for _, stmt := range forStmt.Block.Statements {
 			if _, ok := stmt.(*ast.ContinueStatement); ok {
 				continue Loop
+			}
+			if _, ok := stmt.(*ast.BreakStatement); ok {
+				break Loop
 			}
 			Eval(stmt, env)
 		}
